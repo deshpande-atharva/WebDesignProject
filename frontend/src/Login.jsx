@@ -28,19 +28,21 @@ function Login() {
   };
 
   const handleLogin = () => {
-    const emailError = validateEmail(email) ? '' : 'Please enter a valid email address.';
-    const passwordError = validatePassword(password) ? '' : 'Password must be at least 8 characters long.';
-    
-    if (email.trim() === '') {
-      setError((prev) => ({ ...prev, email: 'Email is required.' }));
-    } else if (password.trim() === '') {
-      setError((prev) => ({ ...prev, password: 'Password is required.' }));
-    } else if (emailError || passwordError) {
-      setError({ email: emailError, password: passwordError });
+    const emailError = email.trim() === '' ? 'Email is required.' : (validateEmail(email) ? '' : 'Please enter a valid email address.');
+    const passwordError = password.trim() === '' ? 'Password is required.' : (validatePassword(password) ? '' : 'Password must be at least 8 characters long.');
+  
+    if (emailError || passwordError) {
+      setError((prev) => ({
+        ...prev,
+        email: emailError,
+        password: passwordError
+      }));
     } else {
+      // Proceed with login if no errors
       navigate('/app');
     }
   };
+  
 
   return (
     <MDBContainer fluid className="p-3 my-5 h-custom">
@@ -60,7 +62,7 @@ function Login() {
             padding: '60px'
           }} className="mb-4">
             <div className="text-center">
-              <p className="h1 fw-bold mb-5" style={{ color: 'black', fontFamily: 'Adobe Garamond' }}>LOGIN</p>
+              <p className="h1 fw-bold mb-5" style={{ color: 'black', fontFamily: 'Granada TS-Demi Bold' }}>LOGIN</p>
             </div>
 
             <MDBInput 
