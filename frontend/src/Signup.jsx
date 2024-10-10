@@ -9,8 +9,7 @@ import {
   MDBCardBody,
   MDBCardImage,
   MDBInput,
-  MDBIcon,
-  MDBCheckbox
+  MDBIcon
 } from 'mdb-react-ui-kit';
 
 function Signup() {
@@ -82,7 +81,7 @@ function Signup() {
         <MDBCardBody>
           <MDBRow>
             <MDBCol md='10' lg='6' className='order-2 order-lg-1 d-flex flex-column align-items-center'>
-              <p className="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">SIGN UP</p>
+              <p className="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4" style={{fontFamily: 'Adobe Garamond'}}>SIGN UP</p>
 
               <div className="d-flex flex-row align-items-center mb-4">
                 <MDBIcon fas icon="user me-3" size='lg' />
@@ -132,10 +131,6 @@ function Signup() {
                 />
               </div>
               {error.confirmPassword && <p className="text-danger">{error.confirmPassword}</p>}
-
-              <div className='mb-4'>
-                <MDBCheckbox name='flexCheck' value='' id='flexCheckDefault' label='Subscribe to our newsletter' />
-              </div>
 
               <MDBBtn className='mb-4' size='lg' style={{ backgroundColor: '#DC143C' }} onClick={handleSignup}>
                 Register
