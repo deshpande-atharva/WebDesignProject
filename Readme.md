@@ -21,6 +21,17 @@ This project is part of our Master's curriculum in Web Design, where we aim to d
 - **Node.js**: Backend for handling server requests and data flow.
 - **MongoDB**: For database management.
 
+
+## MongoDB
+- Lets your create tables(collections).
+- Is the most widely used NoSql database.
+- It is schemaless.
+- It scales well and is a decent choice for most user cases.
+- We can dump our data in JSON format.
+- Create a MongoDB instance.
+- Get the MongoDB URL.
+
+
 ## Installation
 1. Clone the repository:
    ```bash

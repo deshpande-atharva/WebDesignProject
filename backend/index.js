@@ -1,4 +1,6 @@
 const express = require("express");
+const jwt = require("jsonwebtoken");
+const jwtSecret = "yourSecretKey"; //jwt sectret key
 const app = express();
 app.use(express.json());
 
@@ -22,14 +24,10 @@ const userSchema = new mongoose.Schema({
 
 // Create a model for the Users collection
 const User = mongoose.model("User", userSchema);
-
-
 //POST route for signup
 //by default, Mongoose automatically pluralizes and converts the collection name to lowercase.
 // So, when you specify a model name like "Users", Mongoose will, by default, create or look for a collection called "users"
 //Ceated a collection named users in WebProject database
-
-
 app.post("/signup", async function (req, res) {
     const username = req.body.email;
     const password = req.body.password;
@@ -65,6 +63,43 @@ app.post("/signup", async function (req, res) {
         }
     })();
 });
+
+
+//login route for users and authenticating the users with jwt.
+
+app.post("/login", async function (req, res) {
+    const { email, password } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).send("User not found. Please sign up first.");
+        }
+        if (user.password !== password) {
+            return res.status(401).send("Incorrect password");
+        }
+
+        // Generate JWT token
+        const token = jwt.sign({ email: user.email }, jwtSecret, { expiresIn: "1h" }); // Token expires in 1 hour
+        console.log("Login successful:", user);
+
+        // Send back the token
+        res.json({ msg: "Login successful", token });
+    } catch (error) {
+        res.status(500).json({ msg: "Error logging in", error });
+    }
+
+    if (!token) {
+        return res.status(403).send("Token required");
+    }
+
+    jwt.verify(token, jwtSecret, (err, user) => {
+        if (err) {
+            return res.status(403).send("Invalid token");
+        }
+    });
+});
+
 
 // Start the server
 const port = process.env.PORT || 3000;
