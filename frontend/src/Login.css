@@ -1,16 +1,79 @@
-.divider:after,
-.divider:before {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: #eee;
+/* Body and Layout Styling */
+body {
+  background-color: #f8f9fa;
+  font-family: 'Lato', sans-serif;
 }
 
 .h-custom {
   height: calc(100% - 73px);
 }
-@media (max-width: 450px) {
-  .h-custom {
-  height: 100%;
-  }
+
+/* Form container styling */
+.login-container {
+  max-width: 400px;
+  margin: auto;
+  padding: 60px;
+  border: 2px solid black;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Login Page Title Styling */
+h1 {
+  font-family: 'Granada TS-Demi Bold', sans-serif;
+  font-size: 32px;
+  color: black;
+  margin-bottom: 20px;
+}
+
+/* Logo Image Styling */
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Button Styling */
+button {
+  background-color: #DC143C;
+  color: white;
+  border-radius: 5px;
+  font-size: 18px;
+  padding: 10px 30px;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #c82333;
+}
+
+/* Input field styling */
+input {
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+/* Error Message Styling */
+.text-danger {
+  color: red;
+  font-size: 14px;
+  margin-top: -10px;
+}
+
+/* Footer Section Styling */
+.footer {
+  background-color: #DC143C;
+  color: white;
+  padding: 10px;
+  text-align: center;
+}
+
+.footer p {
+  margin: 0;
 }

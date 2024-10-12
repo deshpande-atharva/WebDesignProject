@@ -1,9 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
 
+
 body {
   scroll-behavior: smooth;
   font-family: 'Lato', sans-serif;
 }
+
+body, html {
+  margin: 0;
+  padding: 0;
+}
+
 
 .navbar {
   padding: 1rem 2rem;
@@ -28,15 +35,15 @@ body {
 }
 
 .nav-link {
-  color: #fff !important;
+  color: #fff ;
   margin-right: 20px;
 }
 
 .nav-link:hover {
-  color: #dc3545 !important;
+  color: #dc3545 ;
 }
 
-
+/* Dropdown menu styling */
 .navbar .dropdown-menu {
   background-color: #1c1c1c; 
   border: none;
@@ -58,21 +65,25 @@ body {
 }
 
 
+/* Hero Section */
 .hero-section {
-  background: url('img/Background.jpg') no-repeat center center;
-  background-size: cover;
-  height: 100vh; 
+  background: url('./img/Background.jpg') no-repeat center center !important;
+  background-size: cover !important;
+  width: 100vw; /* Ensure it covers the full viewport width */
+  height: 100vh; /* Ensure it covers the full viewport height */
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative; 
+  position: relative;
 }
+
 
 .hero-section .container {
   background-color: rgba(0, 0, 0, 0.5);
   padding: 2rem;
   border-radius: 8px;
 }
+
 
 .hero-section h2 {
   font-size: 48px;
@@ -97,19 +108,35 @@ body {
   border-color: #dc3545;
 }
 
+.container-fluid, .hero-section {
+  width: 100vw;
+  max-width: 100%;
+}
+
+
 .about-section {
   padding: 5rem 0;
   background-color: #f8f9fa;
   color: #333;
-  height: 100vh; 
+  height: 100vh; /* Make the about section cover the full viewport height */
   display: flex;
-  align-items: center; 
-  justify-content: center; 
+  align-items: center; /* Vertically center the content */
+  justify-content: center; /* Horizontally center the content */
 }
+
+
+.about-img {
+  border-radius: 8px;
+  max-width: 100%;
+  height: auto;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 
 .about-title {
   font-size: 48px;
   font-weight: bold;
+  margin-bottom: 1rem;
   text-transform: uppercase;
 }
 
@@ -119,16 +146,12 @@ body {
   margin-bottom: 2rem;
 }
 
+
 .about-text {
-  padding-top: 5rem;
+  padding-top: 5rem; 
 }
 
-.about-img {
-  border-radius: 8px;
-  max-width: 100%;
-  height: auto;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-}
+
 
 .btn-primary {
   background-color: #dc3545;
@@ -142,6 +165,22 @@ body {
 .btn-primary:hover {
   background-color: #c82333;
 }
+
+.btn-read-more {
+  background-color: #dc3545 !important; /* Red background */
+  color: #fff !important;  /* White text */
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 50px;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.btn-read-more:hover {
+  background-color: #c82333 !important; /* Darker red on hover */
+  color: #fff; /* Ensure text stays white */
+}
+
 
 
 .team-section {
@@ -164,14 +203,15 @@ body {
 }
 
 .team-member {
-  text-align: center;
-  margin-bottom: 2rem;
+  width: 300px; /* Adjust the width of the entire team member block */
+  margin: 0 auto; /* Centers the team member block */
+  text-align: center; /* Keeps the text centered */
 }
 
 .team-img {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
+  width: 250px;  /* Increased width */
+  height: 250px; /* Increased height to match the circle */
+  border-radius: 50%; /* Keeps the image circular */
   margin-bottom: 1rem;
 }
 
@@ -186,13 +226,6 @@ body {
   font-size: 14px;
   color: #6c757d;
   margin-top: 10px; 
-}
-
-.team-img {
-  width: 300px; 
-  height: 300px; 
-  border-radius: 50%; 
-  margin-bottom: 1rem;
 }
 
 
@@ -213,7 +246,7 @@ body {
 }
 
 .service-box {
-  padding: 4rem;
+  padding: 2rem; /* Adjust padding if needed */
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
@@ -222,9 +255,16 @@ body {
   text-align: center;
   width: 100%;
   max-width: 350px;
-  height: 350px;
+  height: auto; /* Allow the height to be auto */
   margin: 0 20px;
 }
+
+.service-box {
+  min-height: 350px; /* Adjust if needed, or remove height constraint */
+  height: auto; /* Allow box height to adjust based on content */
+}
+
+
 
 .services-section .row {
   justify-content: center;
@@ -251,6 +291,10 @@ body {
   transition: color 0.3s ease;
 }
 
+.service-title, .service-description {
+  word-wrap: break-word; /* Ensure the text wraps within the box */
+}
+
 .service-box:hover {
   background-color: #dc3545;
   color: #fff;
@@ -267,6 +311,12 @@ body {
 .service-box:hover .service-description {
   color: #fff;
 }
+
+.service-description {
+  margin-top: 1rem; /* Adjust the margin-top if it's too large */
+  font-size: 16px; /* Adjust font size if needed */
+}
+
 
 summary {
     font-size: 30px; 

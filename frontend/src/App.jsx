@@ -1,15 +1,13 @@
 import React from 'react';
-import "bootstrap/dist/css/bootstrap.min.css";
-import 'bootstrap/dist/js/bootstrap.bundle.min';
-import LandingPage from './LandingPage'
+import LandingPage from './LandingPage';
+import './LandingPage.css';  // Ensure CSS is imported globally for the app
 
-function App(){
-  return(
+function App() {
+  return (
     <div>
-      <LandingPage />
+      <LandingPage />  {/* Render the Landing Page */}
     </div>
   );
 }
 
 export default App;
-  

@@ -1,15 +1,15 @@
-import './Login.css';
-import { Link, useNavigate } from 'react-router-dom';
+import './Login.css';  
+import { Link, useNavigate } from 'react-router-dom';  
 import { useState } from 'react';
 import { MDBContainer, MDBCol, MDBRow, MDBBtn, MDBInput } from 'mdb-react-ui-kit';
 
 function Login() {
-  const navigate = useNavigate();
+  const navigate = useNavigate();  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState({ email: '', password: '' });
 
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validateEmail = (email) => /^[^\s@]+@northeastern\.edu$/.test(email);
   const validatePassword = (password) => password.length >= 8;
 
   const handleChange = (setter, field, validateFunc) => (e) => {
@@ -22,7 +22,7 @@ function Login() {
     } else {
       setError((prev) => ({
         ...prev,
-        [field]: field === 'email' ? 'Please enter a valid email address.' : 'Password must be at least 8 characters long.'
+        [field]: field === 'email' ? 'Please enter @northeastern.edu email address.' : 'Password must be at least 8 characters long.'
       }));
     }
   };
@@ -38,12 +38,11 @@ function Login() {
         password: passwordError
       }));
     } else {
-      // Proceed with login if no errors
-      navigate('/app');
+      
+      navigate('/app');  
     }
   };
   
-
   return (
     <MDBContainer fluid className="p-3 my-5 h-custom">
       <MDBRow className="justify-content-center align-items-center">
