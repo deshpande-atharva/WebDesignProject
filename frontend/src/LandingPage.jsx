@@ -1,17 +1,17 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './LandingPage.css'; 
-import img1 from '../img/img1.jpeg'; 
-import logo from '../img/logo.png'; 
-import huskyLogo from '../img/husky.jpeg'; 
-import img2 from '../img/img2.jpeg'; 
-import img3 from '../img/img3.jpeg'; 
+import img1 from '../img/img1.jpeg';
+import logo from '../img/logo.png';
+import huskyLogo from '../img/husky.jpeg';
+import img2 from '../img/img2.jpeg';
+import img3 from '../img/img3.jpeg';
 import img4 from '../img/img4.jpeg';
 
 const LandingPage = () => {
   return (
     <div>
-      
       <header className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div className="container-fluid">
           <a className="navbar-brand" href="#">
@@ -68,7 +68,6 @@ const LandingPage = () => {
         </div>
       </header>
 
-      
       <section id="home" className="hero-section">
         <div className="container text-center text-white">
           <h2>WELCOME TO NORTHEASTERN</h2>
@@ -77,16 +76,15 @@ const LandingPage = () => {
         </div>
       </section>
 
-      
       <section id="about" className="about-section">
         <div className="container">
           <div className="row">
             <div className="col-md-6 about-text">
               <h2 className="about-title">ABOUT US</h2>
               <p className="about-subtitle">
-                Founded in 1898, we’re renowned for our experiential learning model, high-impact research, deep partnerships, and worldwide reach.
+              Founded in 1898, we’re renowned for our experiential learning model, high-impact research, deep partnerships, and worldwide reach. From day one, we’ve pursued innovative ways of teaching and research that place a premium on experience and engagement with the world. Today, our signature approach erases traditional boundaries, empowering not only students, but faculty, alumni, partners, and innovators to solve problems and pursue impact.
               </p>
-              <a href="#" className="btn btn-primary">Read More</a>
+              <a href="#" className="btn btn-read-more">Read More</a>
             </div>
             <div className="col-md-6">
               <img src={img1} className="img-fluid about-img" alt="About Us" />
@@ -95,7 +93,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      
       <section id="team" className="team-section">
         <div className="container">
           <h2 className="team-title">TEAM</h2>
@@ -138,7 +135,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      
       <section id="services" className="services-section">
         <div className="container">
           <h2 className="services-title text-center">SERVICES</h2>
@@ -180,7 +176,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      
       <section id="faculty-summary">
         <div className="container">
           <details>
@@ -208,7 +203,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      
       <section id="contact" className="contact-section">
         <div className="container">
           <div className="row align-items-center">
@@ -237,7 +231,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      
       <footer className="footer-section">
         <div className="container text-center">
           <div className="row">
