@@ -1,14 +1,14 @@
-import React from 'react';
-import "bootstrap/dist/css/bootstrap.min.css";
-import 'bootstrap/dist/js/bootstrap.bundle.min';
-import LandingPage from './LandingPage'
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+import './App.css'
 
-function App(){
-  return(
+function App() {
+  return (
     <div>
-      <LandingPage />
+      Hi There from app.jsx
     </div>
-  );
+  )
 }
-
 export default App;
+  
