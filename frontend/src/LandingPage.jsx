@@ -14,9 +14,9 @@ const LandingPage = () => {
     <div>
       <header className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div className="container-fluid">
-          <a className="navbar-brand" href="#">
+          <a className="navbar-brand d-flex align-items-end" href="#" >
             <img src={logo} alt="Logo" className="navbar-logo" /> 
-            <h1 className="d-inline-block">NORTHEASTERN UNIVERSITY</h1>
+            <h1 className="d-inline-block mb-0 ms-3">NORTHEASTERN UNIVERSITY</h1>
           </a>
           <button
             className="navbar-toggler"
