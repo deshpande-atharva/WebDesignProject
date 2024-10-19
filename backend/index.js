@@ -88,16 +88,6 @@ app.post("/login", async function (req, res) {
     } catch (error) {
         res.status(500).json({ msg: "Error logging in", error });
     }
-
-    if (!token) {
-        return res.status(403).send("Token required");
-    }
-
-    jwt.verify(token, jwtSecret, (err, user) => {
-        if (err) {
-            return res.status(403).send("Invalid token");
-        }
-    });
 });
 
 

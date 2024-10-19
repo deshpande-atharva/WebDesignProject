@@ -19,7 +19,8 @@ body, html {
 
 .navbar-brand {
   display: flex;
-  align-items: center;
+  align-items: flex-end; /* Aligns the text to the bottom */
+  height: 100%;
 }
 
 .navbar-logo {
@@ -31,7 +32,13 @@ body, html {
   font-size: 24px;
   color: #fff;
   font-weight: bold;
-  display: inline-block;
+  margin: 0;
+}
+.d-inline-block {
+  font-size: 24px;
+  color: #fff;
+  font-weight: bold;
+  margin: 0; /* Remove default margin */
 }
 
 .nav-link {
