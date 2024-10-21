@@ -1,0 +1,50 @@
+/* Centering the logo on the page */
+.logo-animation-container {
+    display: flex;
+  flex-direction: column; /* Stack items vertically */
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: black;
+  position: relative;
+}
+  
+  /* Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
+  
+  /* Keyframe animation for scaling and fading in */
+@keyframes fadeInScale {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+}
+  
+  /* Styling the logo with a gradient and animation */
+.college-logo {
+     font-size: 300px;
+     font-family: "Vollkorn", serif;;
+     font-weight: bold;
+     background: -webkit-linear-gradient(to right, #93291E, #ED213A);
+     background: linear-gradient(to right, #93291E, #ED213A);
+     -webkit-background-clip: text;
+     -webkit-text-fill-color: transparent;
+     animation: fadeInScale 1s ease forwards;
+     display: inline-block;
+     margin-bottom: 20px;
+      
+}
+/* .progress-bar {
+    width: 100%; 
+    max-width: 300px; 
+    margin: 20px auto; 
+    position: relative; 
+    background-color: rgba(255, 255, 255, 0.2); /* Background for the bar 
+}
+
+.progress-bar .progress {
+    background-color: #ED213A; /* This should change the fill color to red */
