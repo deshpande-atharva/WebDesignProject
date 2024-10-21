@@ -1,4 +1,21 @@
 /* Body and Layout Styling */
+@keyframes slideInUp {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.slide-in {
+  animation: slideInUp 1s ease-in-out forwards;
+}
+
+
+
 body {
   background-color: #f8f9fa;
   font-family: 'Lato', sans-serif;

@@ -44,6 +44,7 @@ function Login() {
   };
   
   return (
+    <div className="slide-in">
     <MDBContainer fluid className="p-3 my-5 h-custom">
       <MDBRow className="justify-content-center align-items-center">
         <MDBCol md='6' className="text-center">
@@ -98,6 +99,7 @@ function Login() {
         <div className="text-white mb-3 mb-md-0">Copyright © 2024. All rights reserved.</div>
       </div>
     </MDBContainer>
+    </div>
   );
 }
 
