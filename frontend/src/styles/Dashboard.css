@@ -1,0 +1,11 @@
+/* Add specific styles for Dashboard */
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .dashboard h1 {
+    color: #333;
+  }
+  
