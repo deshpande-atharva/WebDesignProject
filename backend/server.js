@@ -3,6 +3,16 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const connectDB = require("./config/db");  // Import connectDB
+const assignmentRoutes = require("./routes/assignmentRoutes");
+const submissionRoutes = require('./routes/submissionRoutes');
+const fs = require('fs');
+const path = require('path');
+
+// Ensure uploads/submissions directory exists
+const submissionDir = path.join(__dirname, 'uploads/submissions');
+if (!fs.existsSync(submissionDir)) {
+  fs.mkdirSync(submissionDir, { recursive: true });
+}
 
 // Importing Models
 const User = require("./models/User");
@@ -21,6 +31,12 @@ connectDB();
 // Express app setup
 const app = express();
 app.use(cors());
+app.use(express.json());
+app.use('/uploads', express.static('uploads')); // Serve uploaded files
+
+// API routes
+app.use('/api/assignments', assignmentRoutes); // Register assignment routes
+app.use('/api/submissions', submissionRoutes);
 
 // Data arrays for Users, Courses, Assignments, etc.
 const users = [
@@ -107,70 +123,6 @@ const courses = [
   },
 ];
 
-const assignments = [
-  {
-    assignmentName: 'Assignment 1: Sorting Algorithms',
-    description: 'Implement sorting algorithms like QuickSort and MergeSort.',
-    course: 'CS101', // Course code to link
-    dueDate: '2024-12-10',
-  },
-  {
-    assignmentName: 'Assignment 2: Binary Trees',
-    description: 'Implement operations on binary trees.',
-    course: 'CS102',
-    dueDate: '2024-12-15',
-  },
-  {
-    assignmentName: 'Assignment 1: Build a Personal Website',
-    description: 'Create a personal website using HTML and CSS.',
-    course: 'CS103',
-    dueDate: '2024-12-20',
-  },
-];
-
-const grades = [
-  {
-    student: 'john.doe@example.com',
-    course: 'CS101',
-    assignmentGrades: [
-      { assignment: 'Assignment 1: Sorting Algorithms', grade: 85 },
-    ],
-    finalGrade: 90,
-  },
-  {
-    student: 'jane.smith@example.com',
-    course: 'CS101',
-    assignmentGrades: [
-      { assignment: 'Assignment 1: Sorting Algorithms', grade: 78 },
-    ],
-    finalGrade: 80,
-  },
-  {
-    student: 'alice.johnson@example.com',
-    course: 'CS102',
-    assignmentGrades: [
-      { assignment: 'Assignment 2: Binary Trees', grade: 92 },
-    ],
-    finalGrade: 88,
-  },
-  {
-    student: 'bob.brown@example.com',
-    course: 'CS102',
-    assignmentGrades: [
-      { assignment: 'Assignment 2: Binary Trees', grade: 75 },
-    ],
-    finalGrade: 78,
-  },
-  {
-    student: 'emma.wilson@example.com',
-    course: 'CS103',
-    assignmentGrades: [
-      { assignment: 'Assignment 1: Build a Personal Website', grade: 95 },
-    ],
-    finalGrade: 93,
-  },
-];
-
 const enrollments = [
   { student: 'john.doe@example.com', course: 'CS101', status: 'enrolled' },
   { student: 'jane.smith@example.com', course: 'CS101', status: 'enrolled' },
@@ -200,99 +152,74 @@ const schedules = [
   },
 ];
 
-async function insertData() {
-  try {
-    // Clear the users collection to avoid duplicate entries
-    await User.deleteMany({});
-    console.log('Users collection cleared.');
+// async function insertData() {
+//   try {
+//     // Clear the users collection to avoid duplicate entries
+//     await User.deleteMany({});
+//     console.log('Users collection cleared.');
 
-    // Clear the courses collection to avoid duplicate entries
-    await Course.deleteMany({});
-    console.log('Courses collection cleared.');
+//     // Clear the courses collection to avoid duplicate entries
+//     await Course.deleteMany({});
+//     console.log('Courses collection cleared.');
 
-    // Insert Users
-    const userDocuments = await User.insertMany(users);
-    console.log('Users inserted!');
+//     // Insert Users
+//     const userDocuments = await User.insertMany(users);
+//     console.log('Users inserted!');
 
-    // Create a map for user emails to ObjectId for easy lookup
-    const usersMap = userDocuments.reduce((map, user) => {
-      map[user.email] = user._id;
-      return map;
-    }, {});
+//     // Create a map for user emails to ObjectId for easy lookup
+//     const usersMap = userDocuments.reduce((map, user) => {
+//       map[user.email] = user._id;
+//       return map;
+//     }, {});
 
-    // Update courses to use ObjectId for teacher and TAs
-    const updatedCourses = courses.map(course => ({
-      ...course,
-      teacher: usersMap[course.teacher],  // Map email to ObjectId
-      ta: course.ta.map(taEmail => usersMap[taEmail]),  // Map emails to ObjectIds
-    }));
+//     // Update courses to use ObjectId for teacher and TAs
+//     const updatedCourses = courses.map(course => ({
+//       ...course,
+//       teacher: usersMap[course.teacher],  // Map email to ObjectId
+//       ta: course.ta.map(taEmail => usersMap[taEmail]),  // Map emails to ObjectIds
+//     }));
 
-    // Insert Courses
-    const courseDocuments = await Course.insertMany(updatedCourses);
-    console.log('Courses inserted!');
-
-    // Insert Assignments (linking course by ObjectId)
-    const updatedAssignments = assignments.map(assignment => ({
-      ...assignment,
-      course: courseDocuments.find(course => course.courseCode === assignment.course)._id, // Map course code to ObjectId
-    }));
-    const assignmentDocuments = await Assignment.insertMany(updatedAssignments);
-    console.log('Assignments inserted!');
-
-    // Create a map of assignments by name to their ObjectId for easy lookup
-    const assignmentsMap = assignmentDocuments.reduce((map, assignment) => {
-      map[assignment.assignmentName] = assignment._id;
-      return map;
-    }, {});
-
-    // Insert Grades (linking students and courses)
-    const updatedGrades = grades.map(grade => ({
-      ...grade,
-      student: usersMap[grade.student],  // Map student email to ObjectId
-      course: courseDocuments.find(course => course.courseCode === grade.course)._id, // Map course code to ObjectId
-      assignmentGrades: grade.assignmentGrades.map(assignmentGrade => ({
-        ...assignmentGrade,
-        assignment: assignmentsMap[assignmentGrade.assignment],  // Map assignment name to ObjectId
-      })),
-    }));
-    const gradeDocuments = await Grade.insertMany(updatedGrades);
-    console.log('Grades inserted!');
+//     // Insert Courses
+//     const courseDocuments = await Course.insertMany(updatedCourses);
+//     console.log('Courses inserted!');
 
 
     
-    // Insert Schedules (linking courses)
-    const updatedSchedules = schedules.map(schedule => ({
-      ...schedule,
-      course: courseDocuments.find(course => course.courseCode === schedule.course)._id, // Map course code to ObjectId
-    }));
-    const scheduleDocuments = await Schedule.insertMany(updatedSchedules);
-    console.log();
-    console.log('Schedules inserted!');
+//     // Insert Schedules (linking courses)
+//     const updatedSchedules = schedules.map(schedule => ({
+//       ...schedule,
+//       course: courseDocuments.find(course => course.courseCode === schedule.course)._id, // Map course code to ObjectId
+//     }));
+//     const scheduleDocuments = await Schedule.insertMany(updatedSchedules);
+//     console.log();
+//     console.log('Schedules inserted!');
 
-    // Insert Enrollments (linking students and courses)
-    const updatedEnrollments = enrollments.map(enrollment => ({
-      ...enrollment,
-      student: usersMap[enrollment.student],  // Map student email to ObjectId
-      course: courseDocuments.find(course => course.courseCode === enrollment.course)._id, // Map course code to ObjectId
-    }));
-    const enrollmentDocuments = await Enrollment.insertMany(updatedEnrollments);
-    console.log('Enrollments inserted!');
+//     // Insert Enrollments (linking students and courses)
+//     const updatedEnrollments = enrollments.map(enrollment => ({
+//       ...enrollment,
+//       student: usersMap[enrollment.student],  // Map student email to ObjectId
+//       course: courseDocuments.find(course => course.courseCode === enrollment.course)._id, // Map course code to ObjectId
+//     }));
+//     const enrollmentDocuments = await Enrollment.insertMany(updatedEnrollments);
+//     console.log('Enrollments inserted!');
 
-    // Disconnect from MongoDB
-    mongoose.disconnect();
-    console.log('Data inserted successfully!');
-  } catch (error) {
-    console.error('Error inserting data:', error);
-  }
-}
+//     // Disconnect from MongoDB
+//     mongoose.disconnect();
+//     console.log('Data inserted successfully!');
+//   } catch (error) {
+//     console.error('Error inserting data:', error);
+//   }
+// }
 
 
 
 // Call insertData function to populate the database
-insertData();
+// insertData();
 
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+
