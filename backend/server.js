@@ -1,10 +1,20 @@
+
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const connectDB = require("./config/db");  // Import connectDB
-const courseRoutes = require("./routes/courseRoutes"); // Import course routes
+const assignmentRoutes = require("./routes/assignmentRoutes");
+const submissionRoutes = require('./routes/submissionRoutes');
+const fs = require('fs');
+const path = require('path');
+const courseRoutes = require("./routes/courseRoutes"); 
 
+// Ensure uploads/submissions directory exists
+const submissionDir = path.join(__dirname, 'uploads/submissions');
+if (!fs.existsSync(submissionDir)) {
+  fs.mkdirSync(submissionDir, { recursive: true });
+}
 
 // Importing Models
 const User = require("./models/User");
@@ -14,13 +24,14 @@ const Grade = require("./models/Grade");
 const Schedule = require("./models/Schedule");
 const Enrollment = require("./models/Enrollment");
 
+// Initialize dotenv for environment variables
 dotenv.config();
 
 // Express app setup
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use("/api", courseRoutes);  // Register course API routes
+app.use('/uploads', express.static('uploads')); // Serve uploaded files
 
 // Connect to the database
 const startServer = async () => {
@@ -39,37 +50,94 @@ const startServer = async () => {
   }
 };
 
+// API routes
+app.use('/api/assignments', assignmentRoutes); // Register assignment routes
+app.use('/api/submissions', submissionRoutes);
+app.use("/api", courseRoutes);
+
 // Data arrays for Users, Courses, Assignments, etc.
 const users = [
-  { name: 'John Doe', email: 'john.doe@example.com', password: 'hashedpassword123', role: 'student' },
-  { name: 'Jane Smith', email: 'jane.smith@example.com', password: 'hashedpassword456', role: 'student' },
-  { name: 'Alice Johnson', email: 'alice.johnson@example.com', password: 'hashedpassword789', role: 'student' },
-  { name: 'Bob Brown', email: 'bob.brown@example.com', password: 'hashedpassword101', role: 'student' },
-  { name: 'Emma Wilson', email: 'emma.wilson@example.com', password: 'hashedpassword112', role: 'student' },
-  { name: 'Prof. Richard Lee', email: 'richard.lee@example.com', password: 'hashedpassword123', role: 'teacher' },
-  { name: 'Prof. Mary Taylor', email: 'mary.taylor@example.com', password: 'hashedpassword456', role: 'teacher' },
-  { name: 'Michael Scott', email: 'michael.scott@example.com', password: 'hashedpassword789', role: 'ta' },
-  { name: 'Dwight Schrute', email: 'dwight.schrute@example.com', password: 'hashedpassword101', role: 'ta' }
+  {
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    password: 'hashedpassword123',
+    role: 'student',
+  },
+  {
+    name: 'Jane Smith',
+    email: 'jane.smith@example.com',
+    password: 'hashedpassword456',
+    role: 'student',
+  },
+  {
+    name: 'Alice Johnson',
+    email: 'alice.johnson@example.com',
+    password: 'hashedpassword789',
+    role: 'student',
+  },
+  {
+    name: 'Bob Brown',
+    email: 'bob.brown@example.com',
+    password: 'hashedpassword101',
+    role: 'student',
+  },
+  {
+    name: 'Emma Wilson',
+    email: 'emma.wilson@example.com',
+    password: 'hashedpassword112',
+    role: 'student',
+  },
+  {
+    name: 'Prof. Richard Lee',
+    email: 'richard.lee@example.com',
+    password: 'hashedpassword123',
+    role: 'teacher',
+  },
+  {
+    name: 'Prof. Mary Taylor',
+    email: 'mary.taylor@example.com',
+    password: 'hashedpassword456',
+    role: 'teacher',
+  },
+  {
+    name: 'Michael Scott',
+    email: 'michael.scott@example.com',
+    password: 'hashedpassword789',
+    role: 'ta',
+  },
+  {
+    name: 'Dwight Schrute',
+    email: 'dwight.schrute@example.com',
+    password: 'hashedpassword101',
+    role: 'ta',
+  },
 ];
 
 const courses = [
-  { name: 'Introduction to Computer Science', courseCode: 'CS101', description: 'A beginner-level course on the basics of computer science.', teacher: 'richard.lee@example.com', ta: ['michael.scott@example.com', 'dwight.schrute@example.com'], content: 'Course content will cover algorithms, data structures, etc.' },
-  { name: 'Data Structures', courseCode: 'CS102', description: 'Intermediate course on data structures and algorithms.', teacher: 'mary.taylor@example.com', ta: ['michael.scott@example.com', 'dwight.schrute@example.com'], content: 'Content covers linked lists, trees, and hash maps.' },
-  { name: 'Web Development', courseCode: 'CS103', description: 'Learn to build web applications using HTML, CSS, and JavaScript.', teacher: 'richard.lee@example.com', ta: ['dwight.schrute@example.com'], content: 'Web technologies, JavaScript frameworks, HTML5, CSS3.' }
-];
-
-const assignments = [
-  { assignmentName: 'Assignment 1: Sorting Algorithms', description: 'Implement sorting algorithms like QuickSort and MergeSort.', course: 'CS101', dueDate: '2024-12-10' },
-  { assignmentName: 'Assignment 2: Binary Trees', description: 'Implement operations on binary trees.', course: 'CS102', dueDate: '2024-12-15' },
-  { assignmentName: 'Assignment 1: Build a Personal Website', description: 'Create a personal website using HTML and CSS.', course: 'CS103', dueDate: '2024-12-20' }
-];
-
-const grades = [
-  { student: 'john.doe@example.com', course: 'CS101', assignmentGrades: [{ assignment: 'Assignment 1: Sorting Algorithms', grade: 85 }], finalGrade: 90 },
-  { student: 'jane.smith@example.com', course: 'CS101', assignmentGrades: [{ assignment: 'Assignment 1: Sorting Algorithms', grade: 78 }], finalGrade: 80 },
-  { student: 'alice.johnson@example.com', course: 'CS102', assignmentGrades: [{ assignment: 'Assignment 2: Binary Trees', grade: 92 }], finalGrade: 88 },
-  { student: 'bob.brown@example.com', course: 'CS102', assignmentGrades: [{ assignment: 'Assignment 2: Binary Trees', grade: 75 }], finalGrade: 78 },
-  { student: 'emma.wilson@example.com', course: 'CS103', assignmentGrades: [{ assignment: 'Assignment 1: Build a Personal Website', grade: 95 }], finalGrade: 93 }
+  {
+    name: 'Introduction to Computer Science',
+    courseCode: 'CS101',
+    description: 'A beginner-level course on the basics of computer science.',
+    teacher: 'richard.lee@example.com',  // Email of teacher
+    ta: ['michael.scott@example.com', 'dwight.schrute@example.com'],  // Emails of TAs
+    content: 'Course content will cover algorithms, data structures, etc.',
+  },
+  {
+    name: 'Data Structures',
+    courseCode: 'CS102',
+    description: 'Intermediate course on data structures and algorithms.',
+    teacher: 'mary.taylor@example.com',  // Email of teacher
+    ta: ['michael.scott@example.com', 'dwight.schrute@example.com'],
+    content: 'Content covers linked lists, trees, and hash maps.',
+  },
+  {
+    name: 'Web Development',
+    courseCode: 'CS103',
+    description: 'Learn to build web applications using HTML, CSS, and JavaScript.',
+    teacher: 'richard.lee@example.com',
+    ta: ['dwight.schrute@example.com'],
+    content: 'Web technologies, JavaScript frameworks, HTML5, CSS3.',
+  },
 ];
 
 const enrollments = [
@@ -77,13 +145,28 @@ const enrollments = [
   { student: 'jane.smith@example.com', course: 'CS101', status: 'enrolled' },
   { student: 'alice.johnson@example.com', course: 'CS102', status: 'enrolled' },
   { student: 'bob.brown@example.com', course: 'CS102', status: 'enrolled' },
-  { student: 'emma.wilson@example.com', course: 'CS103', status: 'enrolled' }
+  { student: 'emma.wilson@example.com', course: 'CS103', status: 'enrolled' },
 ];
 
 const schedules = [
-  { course: 'CS101', days: ['Monday', 'Wednesday'], time: '10:00 AM - 12:00 PM', location: 'Room 101' },
-  { course: 'CS102', days: ['Tuesday', 'Thursday'], time: '2:00 PM - 4:00 PM', location: 'Room 102' },
-  { course: 'CS103', days: ['Friday'], time: '9:00 AM - 12:00 PM', location: 'Room 103' }
+  {
+    course: 'CS101',
+    days: ['Monday', 'Wednesday'],
+    time: '10:00 AM - 12:00 PM',
+    location: 'Room 101',
+  },
+  {
+    course: 'CS102',
+    days: ['Tuesday', 'Thursday'],
+    time: '2:00 PM - 4:00 PM',
+    location: 'Room 102',
+  },
+  {
+    course: 'CS103',
+    days: ['Friday'],
+    time: '9:00 AM - 12:00 PM',
+    location: 'Room 103',
+  },
 ];
 
 // Insert data into MongoDB collections
@@ -115,14 +198,6 @@ async function insertData() {
     // Insert Courses
     const courseDocuments = await Course.insertMany(updatedCourses);
     console.log('Courses inserted!');
-
-    // Insert Assignments
-    const updatedAssignments = assignments.map(assignment => ({
-      ...assignment,
-      course: courseDocuments.find(course => course.courseCode === assignment.course)._id,
-    }));
-    await Assignment.insertMany(updatedAssignments);
-    console.log('Assignments inserted!');
 
     // Insert Grades
     const assignmentsMap = updatedAssignments.reduce((map, assignment) => {
@@ -168,3 +243,5 @@ async function insertData() {
 
 
 startServer();
+
+
