@@ -1,21 +1,21 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import Login from './Login.jsx'
-import Signup from './Signup.jsx'
-import App from './App.jsx'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import 'mdb-react-ui-kit/dist/css/mdb.min.css';
-import '@fortawesome/fontawesome-free/css/all.min.css';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import { BrowserRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { store, persistor } from './redux/store'; // Import both store and persistor
+import './styles/App.css';
 
-
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Signup />} />
-        <Route path="/app" element={<App />}/>
-      </Routes>
-    </Router>
-  </StrictMode>,
-)
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <Provider store={store}>
+      {/* PersistGate ensures Redux state is rehydrated before rendering the app */}
+      <PersistGate loading={<p>Loading...</p>} persistor={persistor}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </PersistGate>
+    </Provider>
+  </React.StrictMode>
+);

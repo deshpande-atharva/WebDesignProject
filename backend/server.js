@@ -1,3 +1,4 @@
+
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
@@ -7,6 +8,7 @@ const assignmentRoutes = require("./routes/assignmentRoutes");
 const submissionRoutes = require('./routes/submissionRoutes');
 const fs = require('fs');
 const path = require('path');
+const courseRoutes = require("./routes/courseRoutes"); 
 
 // Ensure uploads/submissions directory exists
 const submissionDir = path.join(__dirname, 'uploads/submissions');
@@ -25,18 +27,33 @@ const Enrollment = require("./models/Enrollment");
 // Initialize dotenv for environment variables
 dotenv.config();
 
-// Connect to MongoDB
-connectDB();
-
 // Express app setup
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static('uploads')); // Serve uploaded files
 
+// Connect to the database
+const startServer = async () => {
+  try {
+    await connectDB(); // Ensure database is connected
+    console.log('Database connected successfully!');
+    insertData(); // Insert data after successful connection
+
+    const PORT = process.env.PORT || 5001;
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('Error in MongoDB connection:', err);
+    process.exit(1); // Exit process if connection fails
+  }
+};
+
 // API routes
 app.use('/api/assignments', assignmentRoutes); // Register assignment routes
 app.use('/api/submissions', submissionRoutes);
+app.use("/api", courseRoutes);
 
 // Data arrays for Users, Courses, Assignments, etc.
 const users = [
@@ -152,74 +169,79 @@ const schedules = [
   },
 ];
 
-// async function insertData() {
-//   try {
-//     // Clear the users collection to avoid duplicate entries
-//     await User.deleteMany({});
-//     console.log('Users collection cleared.');
+// Insert data into MongoDB collections
+async function insertData() {
+  try {
+    // Check if the collections are already populated
+    const courseCount = await Course.countDocuments();
+    if (courseCount > 0) {
+      console.log('Data already exists. Skipping data insertion.');
+      return; // Skip inserting data if collections are not empty
+    }
 
-//     // Clear the courses collection to avoid duplicate entries
-//     await Course.deleteMany({});
-//     console.log('Courses collection cleared.');
+    // Insert Users
+    const userDocuments = await User.insertMany(users);
+    console.log('Users inserted!');
 
-//     // Insert Users
-//     const userDocuments = await User.insertMany(users);
-//     console.log('Users inserted!');
+    const usersMap = userDocuments.reduce((map, user) => {
+      map[user.email] = user._id;
+      return map;
+    }, {});
 
-//     // Create a map for user emails to ObjectId for easy lookup
-//     const usersMap = userDocuments.reduce((map, user) => {
-//       map[user.email] = user._id;
-//       return map;
-//     }, {});
+    // Update courses to use ObjectId for teacher and TAs
+    const updatedCourses = courses.map(course => ({
+      ...course,
+      teacher: usersMap[course.teacher],  
+      ta: course.ta.map(taEmail => usersMap[taEmail]),  
+    }));
 
-//     // Update courses to use ObjectId for teacher and TAs
-//     const updatedCourses = courses.map(course => ({
-//       ...course,
-//       teacher: usersMap[course.teacher],  // Map email to ObjectId
-//       ta: course.ta.map(taEmail => usersMap[taEmail]),  // Map emails to ObjectIds
-//     }));
+    // Insert Courses
+    const courseDocuments = await Course.insertMany(updatedCourses);
+    console.log('Courses inserted!');
 
-//     // Insert Courses
-//     const courseDocuments = await Course.insertMany(updatedCourses);
-//     console.log('Courses inserted!');
+    // Insert Grades
+    const assignmentsMap = updatedAssignments.reduce((map, assignment) => {
+      map[assignment.assignmentName] = assignment._id;
+      return map;
+    }, {});
 
+    const updatedGrades = grades.map(grade => ({
+      ...grade,
+      student: usersMap[grade.student],  
+      course: courseDocuments.find(course => course.courseCode === grade.course)._id, 
+      assignmentGrades: grade.assignmentGrades.map(assignmentGrade => ({
+        ...assignmentGrade,
+        assignment: assignmentsMap[assignmentGrade.assignment],
+      })),
+    }));
+    await Grade.insertMany(updatedGrades);
+    console.log('Grades inserted!');
 
-    
-//     // Insert Schedules (linking courses)
-//     const updatedSchedules = schedules.map(schedule => ({
-//       ...schedule,
-//       course: courseDocuments.find(course => course.courseCode === schedule.course)._id, // Map course code to ObjectId
-//     }));
-//     const scheduleDocuments = await Schedule.insertMany(updatedSchedules);
-//     console.log();
-//     console.log('Schedules inserted!');
+    // Insert Schedules
+    const updatedSchedules = schedules.map(schedule => ({
+      ...schedule,
+      course: courseDocuments.find(course => course.courseCode === schedule.course)._id, 
+    }));
+    await Schedule.insertMany(updatedSchedules);
+    console.log('Schedules inserted!');
 
-//     // Insert Enrollments (linking students and courses)
-//     const updatedEnrollments = enrollments.map(enrollment => ({
-//       ...enrollment,
-//       student: usersMap[enrollment.student],  // Map student email to ObjectId
-//       course: courseDocuments.find(course => course.courseCode === enrollment.course)._id, // Map course code to ObjectId
-//     }));
-//     const enrollmentDocuments = await Enrollment.insertMany(updatedEnrollments);
-//     console.log('Enrollments inserted!');
+    // Insert Enrollments
+    const updatedEnrollments = enrollments.map(enrollment => ({
+      ...enrollment,
+      student: usersMap[enrollment.student],  
+      course: courseDocuments.find(course => course.courseCode === enrollment.course)._id, 
+    }));
+    await Enrollment.insertMany(updatedEnrollments);
+    console.log('Enrollments inserted!');
 
-//     // Disconnect from MongoDB
-//     mongoose.disconnect();
-//     console.log('Data inserted successfully!');
-//   } catch (error) {
-//     console.error('Error inserting data:', error);
-//   }
-// }
-
-
-
-// Call insertData function to populate the database
-// insertData();
+  } catch (error) {
+    console.error('Error inserting data:', error);
+  }
+}
 
 // Start the server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
+
+startServer();
 
 
