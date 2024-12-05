@@ -3,7 +3,7 @@ const Course = require('../models/Course');
 
 exports.getAssignment = async (req, res) => {
     try {
-        const { title } = req.params;
+        const { title } = req.query;
         const assignment = await Assignment.findOne({ title }).populate('courseId userId'); // Populate foreign keys
         if (!assignment) {
           return res.status(404).json({ message: 'Assignment not found' });
