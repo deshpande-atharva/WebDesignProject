@@ -3,10 +3,11 @@ import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types'; // Import PropTypes for validation
 
 const PrivateRoute = ({ children }) => {
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  // Assuming 'user' or 'token' being null means the user is not authenticated
+  const user = useSelector((state) => state.auth.user);
 
   // If the user is not authenticated, redirect them to the login page
-  if (!isAuthenticated) {
+  if (!user) {
     return <Navigate to="/login" />;
   }
 
