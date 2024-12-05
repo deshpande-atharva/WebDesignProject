@@ -3,7 +3,7 @@ const { getAssignment, addAssignment } = require("../controllers/assignmentContr
 // const { protect } = require("../middleware/authMiddleware");
 const router = express.Router();
 
-router.get("/", getAssignment);
+router.get("/getAssignment", getAssignment);
 router.post("/create", addAssignment);
 
 module.exports = router;
