@@ -1,20 +1,17 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import Login from './Login.jsx';
-import Signup from './Signup.jsx';
-import App from './App.jsx';  // Contains LandingPage
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import 'mdb-react-ui-kit/dist/css/mdb.min.css';
-import '@fortawesome/fontawesome-free/css/all.min.css';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import { BrowserRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import store from './redux/store';
+import './styles/App.css';
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />  {/* Login Page */}
-        <Route path="/register" element={<Signup />} />  {/* Signup Page */}
-        <Route path="/app" element={<App />} />  {/* Landing Page */}
-      </Routes>
-    </Router>
-  </StrictMode>
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </Provider>
+  </React.StrictMode>
 );
