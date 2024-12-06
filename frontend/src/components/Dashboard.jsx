@@ -297,7 +297,9 @@ const renderCourseContent = () => (
               maxWidth: 600,
               borderRadius: 2,
               boxShadow: 3,
+              cursor: 'pointer',
             }}
+            onClick={() => navigate(`/assignments/${course._id}`)} // Add onClick handler
           >
             <CardContent>
               <Typography variant="h6" component="div" gutterBottom>

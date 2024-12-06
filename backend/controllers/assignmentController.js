@@ -16,18 +16,18 @@ exports.getAssignment = async (req, res) => {
 };
 
 
-exports.getCourseAssignment = async(req, res) => {
-    try {
-        const { courseId } = req.query;
-        const courseAssignment = await Assignment.find({ courseId }); // Populate foreign keys
-        if (!courseAssignment) {
-          return res.status(404).json({ message: 'Assignment not found for specific course' });
-        }
-        res.status(200).json({ data: courseAssignment });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error fetching assignment', error });
-      }
+exports.getCourseAssignment = async (req, res) => {
+  try {
+    const { courseId } = req.query;
+    const courseAssignments = await Assignment.find({ courseId });
+    if (courseAssignments.length === 0) {
+      return res.status(404).json({ message: 'No assignments found for this course' });
+    }
+    res.status(200).json({ data: courseAssignments });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching assignments', error });
+  }
 };
 
 exports.addAssignment = async (req, res) => {

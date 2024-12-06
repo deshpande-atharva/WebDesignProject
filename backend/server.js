@@ -7,6 +7,7 @@ const connectDB = require("./config/db");
 const courseRoutes = require('./routes/courseRoutes');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
+const Assignment= require('./models/Assignment');
 const assignmentRoutes = require("./routes/assignmentRoutes");
 const submissionRoutes = require('./routes/submissionRoutes');
 const fs = require('fs');
@@ -68,6 +69,36 @@ app.use('/api', authRoutes);
 app.use(userRoutes);
 
 // Static Data
+const assignments = [
+  {
+    title: "Midterm Project",
+    description: "Complete a project demonstrating your understanding of course concepts.",
+    points: 100,
+    dueDate: new Date("2024-12-15"),
+    allowedAttempts: 1,
+    submissionType: "file",
+    submissionDetails: "Submit a PDF report and source code.",
+  },
+  {
+    title: "Final Exam",
+    description: "Comprehensive exam covering all course material.",
+    points: 150,
+    dueDate: new Date("2024-12-20"),
+    allowedAttempts: 1,
+    submissionType: "text",
+    submissionDetails: "Complete the online exam within the allocated time.",
+  },
+  {
+    title: "Weekly Quiz",
+    description: "Short quiz on this week's topics.",
+    points: 20,
+    dueDate: new Date("2024-12-10"),
+    allowedAttempts: 2,
+    submissionType: "link",
+    submissionDetails: "Access the quiz through the provided link.",
+  },
+];
+
 const users = [
   {
     name: "John Doe",
@@ -184,6 +215,8 @@ const insertData = async () => {
     await Enrollment.deleteMany({});
     await Schedule.deleteMany({});
 
+    await Assignment.deleteMany({});
+
     console.log("Existing data cleared!");
 
     // Hash passwords for users
@@ -213,7 +246,6 @@ const insertData = async () => {
       teacher: userMap[course.teacher], // Replace teacher email with ObjectId
       ta: course.ta.map(email => userMap[email]), // Replace TA emails with ObjectIds
     }));
-
     const courseDocuments = await Course.insertMany(updatedCourses);
     console.log("Courses inserted!");
 
@@ -269,6 +301,17 @@ const insertData = async () => {
     }));
     await Schedule.insertMany(updatedSchedules);
     console.log("Schedules inserted!");
+
+    for (const course of courseDocuments) {
+      const courseAssignments = assignments.map(assignment => ({
+        ...assignment,
+        courseId: course._id,
+        userId: course.teacher,
+      }));
+      await Assignment.insertMany(courseAssignments);
+      console.log(`Assignments created for course: ${course.name}`);
+    }
+    console.log("All assignments have been seeded successfully.");
 
   } catch (err) {
     console.error("Error inserting data:", err);
