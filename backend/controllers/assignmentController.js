@@ -4,11 +4,26 @@ const Course = require('../models/Course');
 exports.getAssignment = async (req, res) => {
     try {
         const { title } = req.query;
-        const assignment = await Assignment.findOne({ title }).populate('courseId userId'); // Populate foreign keys
+        const assignment = await Assignment.findOne({ title }); // Populate foreign keys
         if (!assignment) {
           return res.status(404).json({ message: 'Assignment not found' });
         }
         res.status(200).json({ data: assignment });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error fetching assignment', error });
+      }
+};
+
+
+exports.getCourseAssignment = async(req, res) => {
+    try {
+        const { courseId } = req.query;
+        const courseAssignment = await Assignment.find({ courseId }); // Populate foreign keys
+        if (!courseAssignment) {
+          return res.status(404).json({ message: 'Assignment not found for specific course' });
+        }
+        res.status(200).json({ data: courseAssignment });
       } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error fetching assignment', error });
