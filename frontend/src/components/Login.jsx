@@ -190,12 +190,6 @@ const Login = () => {
                 alignItems: 'center',
               }}
             >
-              <Box>
-                <input type="checkbox" id="remember-me" />
-                <label htmlFor="remember-me" style={{ marginLeft: 8 }}>
-                  Remember me
-                </label>
-              </Box>
             </Box>
             <Button
               type="submit"

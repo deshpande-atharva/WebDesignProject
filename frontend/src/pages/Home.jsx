@@ -34,7 +34,7 @@ const Home = () => {
           <Typography variant="h6" gutterBottom>
             A global research university, powered by experience
           </Typography>
-          <Link to="/login">  {/* Link to the login page */}
+          <Link to="/">  {/* Link to the login page */}
             <Button
               variant="contained"
               sx={{
