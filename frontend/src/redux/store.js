@@ -22,10 +22,11 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 // Configure store
 const store = configureStore({
-  reducer: persistedReducer,
+  reducer: persistedReducer
 });
 
 // Create the persistor
 const persistor = persistStore(store);
 
-export { store, persistor };
+export {store, persistor} ;
+
