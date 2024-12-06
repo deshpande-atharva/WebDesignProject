@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// Static Schedules Data
 const schedules = [
   {
     course: "CS101",
@@ -33,18 +34,23 @@ const schedules = [
   },
 ];
 
+
 const scheduleSchema = mongoose.Schema(
   {
     course: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: true },
-    days: { type: [String], required: true }, // Array of days e.g., ["Monday", "Wednesday"]
+    days: { type: [String], required: true }, // Days e.g., ["Monday", "Wednesday"]
     time: { type: String, required: true }, // Time range e.g., "10:00 AM - 12:00 PM"
     location: { type: String, required: true }, // Room or location description
     duration: {
       startDate: { type: Date, required: true }, // Start date of the schedule
       endDate: { type: Date, required: true }, // End date of the schedule
     },
+
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Schedule", scheduleSchema);
+module.exports = {
+  Schedule: mongoose.model("Schedule", scheduleSchema),
+  schedules,
+};

@@ -3,6 +3,9 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const connectDB = require("./config/db");
+const courseRoutes = require('./routes/courseRoutes');
+const userRoutes = require('./routes/userRoutes');
+
 const assignmentRoutes = require("./routes/assignmentRoutes");
 const submissionRoutes = require('./routes/submissionRoutes');
 const fs = require('fs');
@@ -15,11 +18,13 @@ const submissionDir = path.join(__dirname, 'uploads/submissions');
 if (!fs.existsSync(submissionDir)) {
   fs.mkdirSync(submissionDir, { recursive: true });
 }
+
 // Import Models
 const User = require("./models/User");
 const Course = require("./models/Course");
 const Enrollment = require("./models/Enrollment");
 const Schedule = require("./models/Schedule");
+
 
 // Initialize dotenv for environment variables
 dotenv.config();
@@ -33,6 +38,8 @@ app.use(cors({
   allowedHeaders: 'Content-Type, Authorization',
 }));
 app.use(express.json());
+app.use('/api', courseRoutes);
+app.use(userRoutes);
 app.use('/uploads', express.static('uploads')); // Serve uploaded files
 
 // Connect to the database and start the server
@@ -52,12 +59,12 @@ const startServer = async () => {
   }
 };
 
+
 // API routes
 app.use('/api/assignments', assignmentRoutes); // Register assignment routes
 app.use('/api/submissions', submissionRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use("/api", courseRoutes);
-
 
 // Static Data
 const users = [
@@ -97,6 +104,7 @@ const users = [
     assigned_courses: ["CS101", "CS102"], // TA for CS101 and CS102
   },
   {
+
     name: "Dwight Schrute",
     email: "dwight.schrute@example.com",
     password: "hashedpassword113",
@@ -171,7 +179,9 @@ const insertData = async () => {
     await User.deleteMany({});
     await Course.deleteMany({});
     await Enrollment.deleteMany({});
+
     await Schedule.deleteMany({});
+
     console.log("Existing data cleared!");
 
     // Insert Users
@@ -196,7 +206,9 @@ const insertData = async () => {
       teacher: userMap[course.teacher], // Replace teacher email with ObjectId
       ta: course.ta.map(email => userMap[email]), // Replace TA emails with ObjectIds
     }));
+
     const courseDocuments = await Course.insertMany(updatedCourses); // Ensure this is defined
+
     console.log("Courses inserted!");
 
     // Map course codes to ObjectId
@@ -223,6 +235,7 @@ const insertData = async () => {
       }
       return updatedUser;
     });
+
 
     // Replace Users with updated references
     await User.deleteMany({});
@@ -251,7 +264,7 @@ const insertData = async () => {
     }));
     await Schedule.insertMany(updatedSchedules);
     console.log("Schedules inserted!");
-    
+
   } catch (err) {
     console.error("Error inserting data:", err);
   }
