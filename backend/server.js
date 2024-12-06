@@ -35,7 +35,6 @@ app.use(cors({
 app.use(express.json());
 app.use('/uploads', express.static('uploads')); // Serve uploaded files
 
-
 // Connect to the database and start the server
 const startServer = async () => {
   try {
@@ -257,7 +256,5 @@ const insertData = async () => {
     console.error("Error inserting data:", err);
   }
 };
-
-
 
 startServer();
