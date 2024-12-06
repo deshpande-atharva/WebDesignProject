@@ -1,30 +1,5 @@
-// import { useEffect, useState } from 'react';
-// import apiService from '../redux/apiService';
-
-// const Calendar = () => {
-//   const [schedule, setSchedule] = useState([]);
-
-//   useEffect(() => {
-//     // Replace with actual API call to fetch calendar schedule
-//     apiService.get('/schedule')
-//       .then(response => setSchedule(response.data))
-//       .catch(error => console.log(error));
-//   }, []);
-
-//   return (
-//     <div className="calendar">
-//       <h1>Your Class Schedule</h1>
-//       <ul>
-//         {schedule.map((classInfo, index) => (
-//           <li key={index}>{classInfo.className} - {classInfo.time}</li>
-//         ))}
-//       </ul>
-//     </div>
-//   );
-// };
-
-// export default Calendar;
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { Box, Typography, Button } from "@mui/material";
 import {
   startOfMonth,
@@ -38,16 +13,18 @@ import {
 } from "date-fns";
 import apiService from "../redux/apiService";
 
-const Calendar = () => {
+const Calendar = ({ courseId }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [schedule, setSchedule] = useState([]);
 
   useEffect(() => {
-    apiService
-      .get("/schedule")
-      .then((response) => setSchedule(response.data))
-      .catch((error) => console.log(error));
-  }, []);
+    if (courseId) {
+      apiService
+        .get(`/schedule?courseId=674ce22fffeceed88f5b04d6`)
+        .then((response) => setSchedule(response.data))
+        .catch((error) => console.log("Error fetching schedules:", error));
+    }
+  }, [courseId]);
 
   const startMonth = startOfMonth(currentDate);
   const endMonth = endOfMonth(currentDate);
@@ -61,6 +38,7 @@ const Calendar = () => {
     days.push(day);
     day = addDays(day, 1);
   }
+
 
   const renderDays = () => {
     const headers = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -79,29 +57,36 @@ const Calendar = () => {
   const renderCells = () => {
     return (
       <Box display="flex" flexWrap="wrap">
-        {days.map((day, index) => (
-          <Box
-            key={index}
-            flex="1 0 14%"
-            height="100px"
-            border="1px solid #ddd"
-            backgroundColor={isSameMonth(day, startMonth) ? "#fff" : "#f5f5f5"}
-            textAlign="center"
-            position="relative"
-          >
-            <Typography
-              variant="body1"
-              sx={{
-                fontWeight: isSameDay(day, new Date()) ? "bold" : "normal",
-                color: isSameDay(day, new Date()) ? "#d32f2f" : "inherit",
-              }}
-            >
-              {format(day, "d")}
-            </Typography>
+        {days.map((day, index) => {
+          const dayNumber = format(day, "d");
+          const dayOfWeek = format(day, "EEEE");
+          const dayEvents = schedule.filter(event =>
+            event.days.includes(dayOfWeek) &&
+            new Date(event.startDate) <= day &&
+            new Date(event.endDate) >= day
+          );
 
-            {schedule
-              .filter((event) => isSameDay(new Date(event.date), day))
-              .map((event, i) => (
+          return (
+            <Box
+              key={index}
+              flex="1 0 14%"
+              height="100px"
+              border="1px solid #ddd"
+              backgroundColor={isSameMonth(day, startMonth) ? "#fff" : "#f5f5f5"}
+              textAlign="center"
+              position="relative"
+            >
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: isSameDay(day, new Date()) ? "bold" : "normal",
+                  color: isSameDay(day, new Date()) ? "#d32f2f" : "inherit",
+                }}
+              >
+                {dayNumber}
+              </Typography>
+
+              {dayEvents.map((event, i) => (
                 <Box
                   key={i}
                   sx={{
@@ -116,11 +101,12 @@ const Calendar = () => {
                     textOverflow: "ellipsis",
                   }}
                 >
-                  {event.className}
+                  {event.location} ({event.time})
                 </Box>
               ))}
-          </Box>
-        ))}
+            </Box>
+          );
+        })}
       </Box>
     );
   };
@@ -165,6 +151,10 @@ const Calendar = () => {
       {renderCells()}
     </Box>
   );
+};
+
+Calendar.propTypes = {
+  courseId: PropTypes.string.isRequired,
 };
 
 export default Calendar;
