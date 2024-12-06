@@ -23,6 +23,7 @@ const App = () => {
         <Route path="/courses" element={<PrivateRoute><Courses /></PrivateRoute>} />
         <Route path="/schedule" element={<PrivateRoute><Schedule /></PrivateRoute>} />
         <Route path="/home" element={<PublicRoute><Home /></PublicRoute>} />
+        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
       </Routes>
     </div>
   );

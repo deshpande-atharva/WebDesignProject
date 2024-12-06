@@ -1,86 +1,297 @@
-
+import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Box, Drawer, List, ListItem, ListItemText, Typography, Container } from '@mui/material';
  import { useEffect, useState } from 'react';
 import { Card, CardContent, Grid } from '@mui/material';
+import { logout } from '../redux/authSlice'; 
+import { useDispatch } from 'react-redux';
  import axios from 'axios';
+import { Button, Stack } from '@mui/material';
+import { CheckCircleOutline, MarkEmailUnread } from '@mui/icons-material';
+import apiService from '../redux/apiService';
+import {
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  addDays,
+  format,
+  isSameMonth,
+  isSameDay,
+} from "date-fns";
+
 const Dashboard = () => {
   const [selectedTab, setSelectedTab] = useState(0);
   const user = useSelector((state) => state.auth.user);
-  const [ courses, setCourses] = useState([]);
+  const [ courses] = useState([]);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
-
-  //Fetch all available courses
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  // Fetch courses based on IDs stored in localStorage
   useEffect(() => {
-    // Fetch the courses API
-    axios.get('http://localhost:5000/api/courses') 
-      .then((response) => {
-        setCourses(response.data); // Set all courses
-      })
-      .catch((error) => {
-        console.error('Error fetching courses:', error);
-      });
-  }, [courses]);
+    const storedCourseIds = localStorage.getItem('courses'); // Fetch course IDs
+    const courseIds = storedCourseIds ? storedCourseIds.split(',') : [];
 
-  // Fetch user enrolled courses
-  useEffect(() => {
-  // Ensure both user and courses are available
-  if (user?.courses?.length > 0 && courses.length > 0) {
-    // Normalize data for comparison and filter enrolled courses
-    const enrolledCoursesList = courses.filter(course => 
-      user.courses.some(enrolledCode => String(enrolledCode).toLowerCase() === String(course.courseCode).toLowerCase())
-    );
+    if (courseIds.length > 0) {
+      // Fetch details for each course
+      const fetchCourses = async () => {
+        try {
+          const courseDataPromises = courseIds.map((id) =>
+            axios.get(`http://localhost:5000/api/courses/${id}`)
+          );
+          const courseResponses = await Promise.all(courseDataPromises);
+          const fetchedCourses = courseResponses.map((response) => response.data);
+          setEnrolledCourses(fetchedCourses);
+        } catch (error) {
+          console.error('Error fetching enrolled courses:', error);
+        }
+      };
 
-    // Update the state with the filtered courses
-    setEnrolledCourses(enrolledCoursesList);
-  } else {
-    setEnrolledCourses([]); // Reset enrolled courses if data is incomplete
-  }
-}, [user, courses]);
+      fetchCourses();
+    }
+  }, []);
 
-const renderCalendarContent = () => (
-  <Box>
-  <Grid container spacing={4}>
-    {enrolledCourses.map((job, index) => (
-      <Grid item xs={12} sm={6} md={4} key={index}>
-        <Card
-          elevation={3}
-          sx={{
-            backgroundColor: '#F7F7E8',
-            padding: 4,
-            margin: 'auto',
-            marginTop: 4,
-            maxWidth: 600,
-            borderRadius: 2,
-            boxShadow: 3,
-          }}
-        >
-          <CardContent>
-        <Typography variant="h6" component="div">
-          {courses.name}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {courses.courseCode}
-        </Typography>
+    // Logout Function using Redux
+    const handleLogout = () => {
+      // Dispatch logout action and clear localStorage
+      dispatch(logout());
       
-          </CardContent>
-        </Card>
-      </Grid>
-    ))}
-  </Grid>
-</Box>
-);
+      localStorage.clear();
+      navigate('/');
+    };
+
+    const [announcements, setAnnouncements] = useState([]);
+
+  useEffect(() => {
+    const sampleAnnouncements = [
+      {
+        title: 'Exciting Research Opportunities in Engineering at Northeastern College',
+        description: 'Explore cutting-edge research opportunities with renowned faculty on projects ranging from renewable energy systems to robotics.',
+        read: false,
+      },
+      {
+        title: 'Engineering Industry Collaboration at Northeastern College',
+        description: 'Join collaborative projects with top engineering firms, solving real-world challenges in product development and innovation.',
+        read: false,
+      },
+      {
+        title: 'Interdisciplinary Engineering Projects at Northeastern College',
+        description: 'Collaborate across disciplines like mechanical, electrical, civil, and computer engineering for innovative project development.',
+        read: false,
+      },
+      {
+        title: 'Advanced Engineering Workshops and Seminars at Northeastern College',
+        description: 'Attend workshops and seminars to engage with industry experts and enhance your skills in emerging engineering technologies.',
+        read: false,
+      },
+      {
+        title: 'Engineering Mentorship Program at Northeastern College',
+        description: 'Participate in a mentorship program that pairs you with professionals and faculty for personalized guidance throughout your academic journey.',
+        read: false,
+      },
+      {
+        title: 'State-of-the-Art Engineering Labs at Northeastern College',
+        description: 'Access advanced labs equipped with the latest technology to support hands-on learning and innovative project development.',
+        read: false,
+      },
+      {
+        title: 'Student-Led Engineering Clubs and Societies',
+        description: 'Join vibrant student-led clubs and societies focused on robotics, AI, sustainable energy, and more.',
+        read: false,
+      },
+      {
+        title: 'Entrepreneurship Opportunities for Engineering Students',
+        description: 'Learn how to transform your innovative ideas into startups through our entrepreneurship initiatives and support.',
+        read: false,
+      },
+      {
+        title: 'Engineering Leadership Development Program',
+        description: 'Develop leadership skills through structured programs designed to prepare you for managerial roles in engineering.',
+        read: false,
+      },
+      {
+        title: 'Global Engineering Exchange Programs',
+        description: 'Participate in global exchange programs to gain international exposure and collaborate with students from partner universities.',
+        read: false,
+      },
+      {
+        title: 'Sustainability and Green Technology Initiatives',
+        description: 'Work on sustainability projects focused on renewable energy, waste management, and eco-friendly technologies.',
+        read: false,
+      },
+      {
+        title: 'AI and Machine Learning Research at Northeastern College',
+        description: 'Join research groups working on cutting-edge AI and machine learning projects to solve real-world problems.',
+        read: false,
+      },
+      {
+        title: 'Networking Events with Industry Leaders',
+        description: 'Attend networking events and career fairs to connect with industry leaders and explore career opportunities.',
+        read: false,
+      },
+      {
+        title: 'Cybersecurity Research and Training Programs',
+        description: 'Participate in cybersecurity research and training to address the growing challenges in information security.',
+        read: false,
+      },
+      {
+        title: 'Data Science Bootcamps for Engineering Students',
+        description: 'Enhance your data science skills through intensive bootcamps designed for engineering students.',
+        read: false,
+      },
+    ];
+
+    apiService.get('/announcements')
+      .then(response => setAnnouncements(response.data || sampleAnnouncements))
+      .catch(() => setAnnouncements(sampleAnnouncements));
+  }, []);
+
+  const handleRead = (index) => {
+    setAnnouncements((prevAnnouncements) => {
+      const updatedAnnouncements = [...prevAnnouncements];
+      updatedAnnouncements[index].read = true;
+      return updatedAnnouncements;
+    });
+  };
+
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [schedule, setSchedule] = useState([]);
+
+  useEffect(() => {
+    apiService
+      .get("/schedule")
+      .then((response) => setSchedule(response.data))
+      .catch((error) => console.log(error));
+  }, []);
+
+  const startMonth = startOfMonth(currentDate);
+  const endMonth = endOfMonth(currentDate);
+  const startCalendar = startOfWeek(startMonth);
+  const endCalendar = endOfWeek(endMonth);
+
+  const days = [];
+  let day = startCalendar;
+
+  while (day <= endCalendar) {
+    days.push(day);
+    day = addDays(day, 1);
+  }
+
+  const renderDays = () => {
+    const headers = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    return (
+      <Box display="flex" justifyContent="space-between">
+        {headers.map((header, index) => (
+          <Box flex={1} key={index} textAlign="center">
+            <Typography variant="h6">{header}</Typography>
+          </Box>
+        ))}
+      </Box>
+    );
+  };
+
+  const renderCells = () => {
+    return (
+      <Box display="flex" flexWrap="wrap">
+        {days.map((day, index) => (
+          <Box
+            key={index}
+            flex="1 0 14%"
+            height="100px"
+            border="1px solid #ddd"
+            backgroundColor={isSameMonth(day, startMonth) ? "#fff" : "#f5f5f5"}
+            textAlign="center"
+            position="relative"
+          >
+            <Typography
+              variant="body1"
+              sx={{
+                fontWeight: isSameDay(day, new Date()) ? "bold" : "normal",
+                color: isSameDay(day, new Date()) ? "#d32f2f" : "inherit",
+              }}
+            >
+              {format(day, "d")}
+            </Typography>
+
+            {schedule
+              .filter((event) => isSameDay(new Date(event.date), day))
+              .map((event, i) => (
+                <Box
+                  key={i}
+                  sx={{
+                    fontSize: "0.8rem",
+                    backgroundColor: "#d32f2f",
+                    color: "#fff",
+                    padding: "2px",
+                    borderRadius: "5px",
+                    marginTop: "5px",
+                    overflow: "hidden",
+                    whiteSpace: "nowrap",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {event.className}
+                </Box>
+              ))}
+          </Box>
+        ))}
+      </Box>
+    );
+  };
+  
+  const renderCalendarContent = () => (
+    <Box sx={{ p: 3 }}>
+    <Typography
+      variant="h4"
+      align="center"
+      gutterBottom
+      sx={{ color: "#d32f2f", fontWeight: "bold" }}
+    >
+      {format(currentDate, "MMMM yyyy")}
+    </Typography>
+
+    <Box display="flex" justifyContent="space-between" sx={{ mb: 3 }}>
+      <Button
+        variant="contained"
+        sx={{
+          backgroundColor: "#d32f2f",
+          color: "#fff",
+          "&:hover": { backgroundColor: "#b71c1c" },
+        }}
+        onClick={() => setCurrentDate((prev) => addDays(prev, -30))}
+      >
+        Previous
+      </Button>
+      <Button
+        variant="contained"
+        sx={{
+          backgroundColor: "#d32f2f",
+          color: "#fff",
+          "&:hover": { backgroundColor: "#b71c1c" },
+        }}
+        onClick={() => setCurrentDate((prev) => addDays(prev, 30))}
+      >
+        Next
+      </Button>
+    </Box>
+
+    {renderDays()}
+    {renderCells()}
+  </Box>
+  );
+  
 
 const renderCourseContent = () => (
   <Box>
     <Grid container spacing={4}>
-      {enrolledCourses.map((job, index) => (
+      {enrolledCourses.map((course, index) => (
         <Grid item xs={12} sm={6} md={4} key={index}>
           <Card
             elevation={3}
             sx={{
               backgroundColor: '#F7F7E8',
-              padding: 4,
+              padding: 2,
               margin: 'auto',
               marginTop: 4,
               maxWidth: 600,
@@ -89,20 +300,23 @@ const renderCourseContent = () => (
             }}
           >
             <CardContent>
-          <Typography variant="h6" component="div">
-            {courses.name}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {courses.courseCode}
-          </Typography>
-        
+              <Typography variant="h6" component="div" gutterBottom>
+                {course.name}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {course.courseCode}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Semester: {course.semester}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
       ))}
     </Grid>
-</Box>
+  </Box>
 );
+
 
 const renderGradesContent = () => (
   <Box>
@@ -138,36 +352,96 @@ const renderGradesContent = () => (
 );
 
 const renderAnnouncementsContent = () => (
-  <Box>
-  <Grid container spacing={4}>
-    {enrolledCourses.map((job, index) => (
-      <Grid item xs={12} sm={6} md={4} key={index}>
-        <Card
-          elevation={3}
+  <Box sx={{ padding: 3 }}>
+    <Typography
+      variant="h4"
+      sx={{
+        textAlign: 'center',
+        fontWeight: 'bold',
+        marginBottom: 4,
+        color: '#d32f2f', // Red color for the heading
+      }}
+    >
+      Announcements
+    </Typography>
+    <Stack spacing={3} direction="row" flexWrap="wrap" justifyContent="center">
+      {announcements.map((announcement, index) => (
+        <Box
+          key={index}
           sx={{
-            backgroundColor: '#F7F7E8',
-            padding: 4,
-            margin: 'auto',
-            marginTop: 4,
-            maxWidth: 600,
-            borderRadius: 2,
-            boxShadow: 3,
+            width: { xs: '100%', sm: '45%', md: '30%' }, // Responsive width
           }}
         >
-          <CardContent>
-        <Typography variant="h6" component="div">
-          {courses.name}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {courses.courseCode}
-        </Typography>
-      
-          </CardContent>
-        </Card>
-      </Grid>
-    ))}
-  </Grid>
-</Box>
+          <Card
+            sx={{
+              backgroundColor: announcement.read ? '#f5f5f5' : '#fff',
+              boxShadow: announcement.read ? 'none' : '0 4px 20px rgba(0,0,0,0.1)',
+              transition: 'all 0.3s ease-in-out',
+              borderRadius: 3,
+              height: 300, // Fixed height for cards
+              display: 'flex',
+              marginTop: 5,
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              '&:hover': {
+                boxShadow: '0 6px 25px rgba(0,0,0,0.2)',
+                transform: 'translateY(-5px)',
+              },
+            }}
+          >
+            <CardContent
+              sx={{
+                flexGrow: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 'bold',
+                  color: '#d32f2f',
+                  textAlign: 'center',
+                }}
+              >
+                {announcement.title}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  marginTop: 1,
+                  marginBottom: 2,
+                  flexGrow: 1,
+                  textAlign: 'center',
+                }}
+              >
+                {announcement.description}
+              </Typography>
+            </CardContent>
+            <Button
+              startIcon={announcement.read ? <CheckCircleOutline /> : <MarkEmailUnread />}
+              variant="outlined"
+              sx={{
+                backgroundColor: announcement.read ? '#fff' : '#d32f2f',
+                color: announcement.read ? '#d32f2f' : '#fff',
+                borderColor: '#d32f2f',
+                width: '90%', // Slightly smaller button width for alignment
+                alignSelf: 'center', // Centers the button in the card
+                marginBottom: 2, // Adds margin below the button
+                '&:hover': {
+                  backgroundColor: announcement.read ? '#f5f5f5' : '#b71c1c',
+                },
+              }}
+              onClick={() => handleRead(index)}
+            >
+              {announcement.read ? 'Read' : 'Mark as Read'}
+            </Button>
+          </Card>
+        </Box>
+      ))}
+    </Stack>
+  </Box>
 );
 
   return (
@@ -212,6 +486,16 @@ const renderAnnouncementsContent = () => (
           <ListItem button onClick={() => setSelectedTab(3)}>
             <ListItemText primary="Announcements" />
           </ListItem>
+        <ListItem button onClick={handleLogout}
+          sx={{
+            borderRadius: 3,
+            paddingX: 3,
+            paddingY: 1,
+            boxShadow: 3,
+          }}
+        >
+          <ListItemText primary="Logout" />
+        </ListItem>
         </List>
       </Drawer>
       <Container sx={{ mt: 3 }}>
@@ -225,3 +509,74 @@ const renderAnnouncementsContent = () => (
 };
 
 export default Dashboard;
+
+// import { Box, Grid, Card, CardContent, Typography, Container } from '@mui/material';
+// import { useState, useEffect } from 'react';
+// import axios from 'axios';
+
+// const Dashboard = () => {
+//   const [enrolledCourses, setEnrolledCourses] = useState([]);
+
+//   // Fetch courses based on IDs stored in localStorage
+//   useEffect(() => {
+//     const storedCourseIds = localStorage.getItem('courses'); // Fetch course IDs
+//     const courseIds = storedCourseIds ? storedCourseIds.split(',') : [];
+
+//     if (courseIds.length > 0) {
+//       // Fetch details for each course
+//       const fetchCourses = async () => {
+//         try {
+//           const courseDataPromises = courseIds.map((id) =>
+//             axios.get(`http://localhost:5000/api/courses/${id}`)
+//           );
+//           const courseResponses = await Promise.all(courseDataPromises);
+//           const fetchedCourses = courseResponses.map((response) => response.data);
+//           setEnrolledCourses(fetchedCourses);
+//         } catch (error) {
+//           console.error('Error fetching enrolled courses:', error);
+//         }
+//       };
+
+//       fetchCourses();
+//     }
+//   }, []);
+
+//   return (
+//     <Box sx={{ display: 'flex', backgroundColor: '#f9f9f9', minHeight: '100vh', padding: 3 }}>
+//       <Container>
+//         <Typography variant="h4" gutterBottom>
+//           Dashboard
+//         </Typography>
+//         <Grid container spacing={3}>
+//           {enrolledCourses.map((course) => (
+//             <Grid item xs={12} sm={6} md={4} key={course.id}>
+//               <Card
+//                 elevation={3}
+//                 sx={{
+//                   padding: 2,
+//                   backgroundColor: '#fff',
+//                   borderRadius: 2,
+//                   boxShadow: 3,
+//                 }}
+//               >
+//                 <CardContent>
+//                   <Typography variant="h6" component="div">
+//                     {course.name}
+//                   </Typography>
+//                   <Typography variant="body2" color="textSecondary">
+//                     {course.courseCode}
+//                   </Typography>
+//                   <Typography variant="body2" color="textSecondary">
+//                     Semester: {course.semester}
+//                   </Typography>
+//                 </CardContent>
+//               </Card>
+//             </Grid>
+//           ))}
+//         </Grid>
+//       </Container>
+//     </Box>
+//   );
+// };
+
+// export default Dashboard;
