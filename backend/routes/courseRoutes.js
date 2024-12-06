@@ -1,14 +1,11 @@
 const express = require('express');
+const { getCourses, getCourseByCode, addCourse } = require('../controllers/courseController');
+
 const router = express.Router();
-const { getCourses, getCourseByCode, addCourse } = require('../controllers/courseController');  // Add getCourseByCode here
 
-// Get all courses
-router.get('/courses', getCourses);
-
-// Get a specific course by courseCode
-router.get('/:courseCode', getCourseByCode);  // This was missing the import for getCourseByCode
-
-// Add a new course
+// Define routes
+router.get('/courses', getCourses); // Removed `/api` prefix as it's added in `app.js`
+router.get('/courses/:courseCode', getCourseByCode);
 router.post('/courses', addCourse);
 
 module.exports = router;

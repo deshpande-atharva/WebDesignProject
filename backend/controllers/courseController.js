@@ -1,20 +1,28 @@
 const Course = require('../models/Course');
 const mongoose = require('mongoose');
 
+
 // Controller function to get all courses
 const getCourses = async (req, res) => {
   try {
+    // Fetch courses and populate related fields
     const courses = await Course.find()
-      .populate('teacher', 'name email')  // Populate teacher details (name and email)
-      .populate('ta', 'name email')      // Optionally populate TA details
-      .exec();  // Execute the query
+      .populate('teacher', 'name email') // Populate teacher details
+      .populate('ta', 'name email');    // Populate TA details
 
-    res.json(courses);  // Return the courses with populated teacher data
+    if (!courses || courses.length === 0) {
+      return res.status(404).json({ message: 'No courses found' });
+    }
+
+    // Send response with courses
+    res.status(200).json(courses);
   } catch (error) {
     console.error('Error fetching courses:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error });
   }
 };
+
+
 
 // Controller function to get a course by courseCode
 const getCourseByCode = async (req, res) => {
