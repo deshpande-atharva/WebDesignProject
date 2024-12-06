@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// Static Grades Data
 const grades = [
   {
     student: "john.doe@example.com",
@@ -43,15 +44,15 @@ const grades = [
   },
 ];
 
-
+// Grades Schema
 const gradeSchema = mongoose.Schema(
   {
     student: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     course: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: true },
     assignmentGrades: [
       {
-        assignment: { type: mongoose.Schema.Types.ObjectId, ref: "Assignment" },
-        grade: { type: Number, required: true },
+        assignment: { type: String, required: true }, // Assignment description
+        grade: { type: Number, required: true }, // Grade received
       },
     ],
     finalGrade: { type: Number, default: null }, // Final grade for the course
@@ -59,4 +60,7 @@ const gradeSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Grade", gradeSchema);
+module.exports = {
+  Grade: mongoose.model("Grade", gradeSchema),
+  grades,
+};

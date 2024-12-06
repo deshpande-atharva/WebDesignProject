@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { login } from '../redux/authSlice';
+import { loginUser } from '../redux/authSlice';
 import { useNavigate } from 'react-router-dom';
-import { Box, TextField, Button, Typography, Link } from '@mui/material';
+import { Box, TextField, Button, Typography } from '@mui/material';
 import img1 from '../images/img1.jpg';
 
 const Login = () => {
@@ -10,12 +10,76 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  // Email Validation Function
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleHome = () => {
+    navigate("/home");
+  }
+
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmail(value);
+
+    // Validate email and set error message if invalid
+    if (!validateEmail(value)) {
+      setEmailError("Invalid email format.");
+    } else {
+      setEmailError(""); // Clear the error if email is valid
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Replace with actual API call
-    dispatch(login({ name: 'Student', email }));
-    navigate('/dashboard');
+    setLoading(true);
+
+    if (!email || !password) {
+      setError('Both email and password are required');
+      setLoading(false);
+      return;
+    }
+
+    // Check for email format validation before submitting
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const result = await dispatch(loginUser({ email, password }));
+      if (result.payload) {
+        const { email, id, courses, role } = result.payload;
+
+        // Save session data in localStorage
+        localStorage.setItem('email', email);
+        localStorage.setItem('userId', id);
+        localStorage.setItem('courses', courses);
+        localStorage.setItem('role', role);
+
+        console.log(localStorage);
+
+        if (role === "teacher" || role === "ta") {
+          navigate("/dashboard", { state: { email, id, courses } });
+        } else if (role === "student") {
+          navigate("/dashboard", { state: { email, id, courses } });
+        }
+      }
+    } catch (error) {
+      console.error('Login Error: ', error);
+      setError(
+        error.response?.data?.message || 'An error occurred. Please try again later.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,6 +119,7 @@ const Login = () => {
             
             <Button
               variant="contained"
+              onClick = {handleHome}
               sx={{
                 backgroundColor: '#d32f2f',
                 '&:hover': { backgroundColor: '#9a0007' },
@@ -87,23 +152,26 @@ const Login = () => {
           <Typography variant="h5" component="h2" gutterBottom>
             Login
           </Typography>
-          <Typography variant="body2" sx={{ mb: 2 }}>
-            Don't have an account?{' '}
-            <Link href="/signup" sx={{ fontWeight: 'bold', color: '#d32f2f' }}>
-              Register
-            </Link>
-          </Typography>
           <form
             onSubmit={handleSubmit}
             style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
           >
+            {/* Error message below heading */}
+            {error && (
+              <Typography variant="body2" color="error" sx={{ marginBottom: 2 }}>
+                {error}
+              </Typography>
+            )}
+
             <TextField
               type="email"
               label="Email"
               variant="outlined"
               fullWidth
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange= {handleEmailChange}
+              error={!!emailError} // Error flag for email field
+              helperText={emailError} // Show email error below field
               required
             />
             <TextField
@@ -122,19 +190,11 @@ const Login = () => {
                 alignItems: 'center',
               }}
             >
-              <Box>
-                <input type="checkbox" id="remember-me" />
-                <label htmlFor="remember-me" style={{ marginLeft: 8 }}>
-                  Remember me
-                </label>
-              </Box>
-              <Link href="/forgot-password" sx={{ color: '#d32f2f' }}>
-                Forgot Password?
-              </Link>
             </Box>
             <Button
               type="submit"
               variant="contained"
+              onClick={handleSubmit}
               fullWidth
               sx={{
                 backgroundColor: '#d32f2f',
@@ -144,8 +204,9 @@ const Login = () => {
                   backgroundColor: '#9a0007',
                 },
               }}
+              disabled={loading}
             >
-              Login
+              {loading ? 'Logging in...' : 'Login'}
             </Button>
           </form>
         </Box>

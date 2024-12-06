@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCourses } from '../redux/courseSlice';
 
@@ -24,7 +24,7 @@ const Courses = () => {
 
   return (
     <div className="courses">
-      <h1>{user.name}'s Enrolled Courses</h1>
+      <h1>{user.name} Enrolled Courses</h1>
       {loading && <p>Loading courses...</p>}
       {error && <p>Error: {error.message || "Something went wrong"}</p>}
       <ul>

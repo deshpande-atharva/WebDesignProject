@@ -1,70 +1,3 @@
-// import { Link } from 'react-router-dom';
-
-// const Home = () => {
-//   return (
-//     <div className="home">
-//       <h1>Student Management System</h1>
-//       <Link to="/login">Login</Link>
-//     </div>
-//   );
-// };
-
-// export default Home;
-
-// import { Link } from 'react-router-dom';
-// import { Box, Button, Typography } from '@mui/material';
-// import { styled } from '@mui/system';
-// import Background from '../images/Background.jpg'; // Import the local image
-
-// const BackgroundContainer = styled(Box)({
-//   position: 'fixed',
-//   top: 0,
-//   left: 0,
-//   width: '100vw',
-//   height: '100vh',
-//   display: 'flex',
-//   alignItems: 'center',
-//   justifyContent: 'center',
-//   background: `url(${Background}) no-repeat center center`, // Use the imported image
-//   backgroundSize: 'cover',
-//   backgroundAttachment: 'fixed',
-//   color: 'white',
-// });
-
-// const StyledButton = styled(Button)({
-//   backgroundColor: 'red',
-//   color: 'white',
-//   fontSize: '1.2rem',
-//   padding: '10px 20px',
-//   marginTop: '20px',
-//   '&:hover': {
-//     backgroundColor: '#b71c1c',
-//   },
-// });
-
-// const Home = () => {
-//   return (
-//     <BackgroundContainer>
-//       <Box textAlign="center">
-//         <Typography variant="h2" component="h1" gutterBottom>
-//           Student Management System
-//         </Typography>
-//         <StyledButton
-//           component={Link}
-//           to="/login"
-//           variant="contained"
-//         >
-//           LOGIN
-//         </StyledButton>
-//       </Box>
-//     </BackgroundContainer>
-//   );
-// };
-
-// export default Home;
-
-
-import React from 'react';
 import { Container, Box, Typography, Button, Paper, Card, CardMedia, CardContent } from '@mui/material';
 import { Link } from 'react-router-dom';  // Import Link from react-router-dom
 import Background from '../images/Background.jpg';  // Import the new background image
@@ -101,7 +34,7 @@ const Home = () => {
           <Typography variant="h6" gutterBottom>
             A global research university, powered by experience
           </Typography>
-          <Link to="/login">  {/* Link to the login page */}
+          <Link to="/">  {/* Link to the login page */}
             <Button
               variant="contained"
               sx={{
