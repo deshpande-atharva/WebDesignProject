@@ -3,7 +3,18 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const connectDB = require("./config/db");
+const assignmentRoutes = require("./routes/assignmentRoutes");
+const submissionRoutes = require('./routes/submissionRoutes');
+const fs = require('fs');
+const path = require('path');
+const courseRoutes = require("./routes/courseRoutes"); 
+const scheduleRoutes = require("./routes/scheduleRoutes");
 
+// Ensure uploads/submissions directory exists
+const submissionDir = path.join(__dirname, 'uploads/submissions');
+if (!fs.existsSync(submissionDir)) {
+  fs.mkdirSync(submissionDir, { recursive: true });
+}
 // Import Models
 const User = require("./models/User");
 const Course = require("./models/Course");
@@ -16,7 +27,14 @@ dotenv.config();
 // Express app setup
 const app = express();
 app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow only requests from the React frontend
+  methods: 'GET, POST, PUT, DELETE',
+  allowedHeaders: 'Content-Type, Authorization',
+}));
 app.use(express.json());
+app.use('/uploads', express.static('uploads')); // Serve uploaded files
+
 
 // Connect to the database and start the server
 const startServer = async () => {
@@ -34,6 +52,13 @@ const startServer = async () => {
     process.exit(1);
   }
 };
+
+// API routes
+app.use('/api/assignments', assignmentRoutes); // Register assignment routes
+app.use('/api/submissions', submissionRoutes);
+app.use('/api/schedules', scheduleRoutes);
+app.use("/api", courseRoutes);
+
 
 // Static Data
 const users = [
