@@ -20,6 +20,10 @@ const Login = () => {
     return emailRegex.test(email);
   };
 
+  const handleHome = () => {
+    navigate("/home");
+  }
+
   const handleEmailChange = (e) => {
     const value = e.target.value;
     setEmail(value);
@@ -115,6 +119,7 @@ const Login = () => {
             
             <Button
               variant="contained"
+              onClick = {handleHome}
               sx={{
                 backgroundColor: '#d32f2f',
                 '&:hover': { backgroundColor: '#9a0007' },
