@@ -6,10 +6,24 @@ const connectDB = require("./config/db");
 const courseRoutes = require('./routes/courseRoutes');
 const userRoutes = require('./routes/userRoutes');
 
+const assignmentRoutes = require("./routes/assignmentRoutes");
+const submissionRoutes = require('./routes/submissionRoutes');
+const fs = require('fs');
+const path = require('path');
+const courseRoutes = require("./routes/courseRoutes"); 
+const scheduleRoutes = require("./routes/scheduleRoutes");
+
+// Ensure uploads/submissions directory exists
+const submissionDir = path.join(__dirname, 'uploads/submissions');
+if (!fs.existsSync(submissionDir)) {
+  fs.mkdirSync(submissionDir, { recursive: true });
+}
+
 // Import Models
 const User = require("./models/User");
 const Course = require("./models/Course");
 const Enrollment = require("./models/Enrollment");
+const Schedule = require("./models/Schedule");
 
 
 // Initialize dotenv for environment variables
@@ -18,9 +32,16 @@ dotenv.config();
 // Express app setup
 const app = express();
 app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow only requests from the React frontend
+  methods: 'GET, POST, PUT, DELETE',
+  allowedHeaders: 'Content-Type, Authorization',
+}));
 app.use(express.json());
 app.use('/api', courseRoutes);
 app.use(userRoutes);
+app.use('/uploads', express.static('uploads')); // Serve uploaded files
+
 // Connect to the database and start the server
 const startServer = async () => {
   try {
@@ -37,6 +58,13 @@ const startServer = async () => {
     process.exit(1);
   }
 };
+
+
+// API routes
+app.use('/api/assignments', assignmentRoutes); // Register assignment routes
+app.use('/api/submissions', submissionRoutes);
+app.use('/api/schedules', scheduleRoutes);
+app.use("/api", courseRoutes);
 
 // Static Data
 const users = [
@@ -76,6 +104,7 @@ const users = [
     assigned_courses: ["CS101", "CS102"], // TA for CS101 and CS102
   },
   {
+
     name: "Dwight Schrute",
     email: "dwight.schrute@example.com",
     password: "hashedpassword113",
@@ -111,13 +140,48 @@ const courses = [
   },
 ];
 
-// Insert data into MongoDB collections
+const schedules = [
+  {
+    course: "CS101",
+    days: ["Monday", "Wednesday"],
+    time: "10:00 AM - 12:00 PM",
+    location: "Room 101",
+    duration: {
+      startDate: new Date("2024-01-01"), // Example start date
+      endDate: new Date("2024-05-15"),   // Example end date
+    },
+  },
+  {
+    course: "CS102",
+    days: ["Tuesday", "Thursday"],
+    time: "2:00 PM - 4:00 PM",
+    location: "Room 102",
+    duration: {
+      startDate: new Date("2024-01-02"), // Example start date
+      endDate: new Date("2024-05-16"),   // Example end date
+    },
+  },
+  {
+    course: "CS103",
+    days: ["Friday"],
+    time: "9:00 AM - 12:00 PM",
+    location: "Room 103",
+    duration: {
+      startDate: new Date("2024-01-05"), // Example start date
+      endDate: new Date("2024-05-19"),   // Example end date
+    },
+  },
+];
+
 const insertData = async () => {
   try {
     // Clear existing collections
     await User.deleteMany({});
     await Course.deleteMany({});
     await Enrollment.deleteMany({});
+
+    await Schedule.deleteMany({});
+
     console.log("Existing data cleared!");
 
     // Insert Users
@@ -142,7 +206,9 @@ const insertData = async () => {
       teacher: userMap[course.teacher], // Replace teacher email with ObjectId
       ta: course.ta.map(email => userMap[email]), // Replace TA emails with ObjectIds
     }));
-    const courseDocuments = await Course.insertMany(updatedCourses);
+
+    const courseDocuments = await Course.insertMany(updatedCourses); // Ensure this is defined
+
     console.log("Courses inserted!");
 
     // Map course codes to ObjectId
@@ -170,6 +236,7 @@ const insertData = async () => {
       return updatedUser;
     });
 
+
     // Replace Users with updated references
     await User.deleteMany({});
     await User.insertMany(updatedUserDocuments);
@@ -189,6 +256,15 @@ const insertData = async () => {
     // Insert Enrollments
     await Enrollment.insertMany(enrollments);
     console.log("Enrollments inserted!");
+
+    // Insert Schedules
+    const updatedSchedules = schedules.map(schedule => ({
+      ...schedule,
+      course: courseDocuments.find(course => course.courseCode === schedule.course)._id, 
+    }));
+    await Schedule.insertMany(updatedSchedules);
+    console.log("Schedules inserted!");
+
   } catch (err) {
     console.error("Error inserting data:", err);
   }

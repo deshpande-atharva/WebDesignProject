@@ -97,10 +97,9 @@
 
 // export default Dashboard;
 
-import React from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Box, Drawer, List, ListItem, ListItemText, Button, Typography } from '@mui/material';
+import { Box, Drawer, List, ListItem, ListItemText, Typography } from '@mui/material';
 import img7 from '../images/img7.jpg';
 
 const Dashboard = () => {
@@ -201,44 +200,6 @@ const Dashboard = () => {
           minHeight: '100vh', // Ensure the background covers the full screen height
         }}
       >
-        <Typography variant="h4" color="white">Welcome, {user?.name || 'Student'}!</Typography>
-        <Typography variant="h6" paragraph color="white">
-          Your courses are listed below:
-        </Typography>
-
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => handleNavigation('/calendar')}
-          sx={{ width: '100%', textAlign: 'left', marginBottom: 2 }}
-        >
-          Calendar
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => handleNavigation('/courses')}
-          sx={{ width: '100%', textAlign: 'left', marginBottom: 2 }}
-        >
-          Courses
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => handleNavigation('/grades')}
-          sx={{ width: '100%', textAlign: 'left', marginBottom: 2 }}
-        >
-          Grades
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => handleNavigation('/announcements')}
-          sx={{ width: '100%', textAlign: 'left', marginBottom: 2 }}
-        >
-          Announcements
-        </Button>
-
         {/* Add cards for courses or additional content here */}
       </Box>
     </Box>
