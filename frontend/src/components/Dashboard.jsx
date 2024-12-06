@@ -1,120 +1,179 @@
-// import React from 'react';
-// import { useSelector } from 'react-redux';
-// import { useNavigate } from 'react-router-dom';
-// import { Box, Drawer, List, ListItem, ListItemText, Button, Typography } from '@mui/material';
-
-// const Dashboard = () => {
-//   const navigate = useNavigate();
-//   const user = useSelector((state) => state.auth.user);
-
-//   const handleNavigation = (path) => {
-//     navigate(path);
-//   };
-
-//   return (
-//     <Box sx={{ display: 'flex' }}>
-//       {/* Left Sidebar (Drawer) */}
-//       <Drawer
-//         sx={{
-//           width: 240,
-//           flexShrink: 0,
-//           '& .MuiDrawer-paper': {
-//             width: 240,
-//             boxSizing: 'border-box',
-//           },
-//         }}
-//         variant="permanent"
-//         anchor="left"
-//       >
-//         <List>
-//           <ListItem>
-//             <Typography variant="h5" align="center">
-//               {user?.name || 'Student'}
-//             </Typography>
-//           </ListItem>
-//           <ListItem button onClick={() => handleNavigation('/calendar')}>
-//             <ListItemText primary="Calendar" />
-//           </ListItem>
-//           <ListItem button onClick={() => handleNavigation('/courses')}>
-//             <ListItemText primary="Courses" />
-//           </ListItem>
-//           <ListItem button onClick={() => handleNavigation('/grades')}>
-//             <ListItemText primary="Grades" />
-//           </ListItem>
-//           <ListItem button onClick={() => handleNavigation('/announcements')}>
-//             <ListItemText primary="Announcements" />
-//           </ListItem>
-          
-//         </List>
-//       </Drawer>
-
-//       {/* Main Content */}
-//       <Box component="main" sx={{ flexGrow: 1, padding: 3, marginLeft: 240 }}>
-//         <Typography variant="h4">Welcome, {user?.name || 'Student'}!</Typography>
-//         <Typography variant="h6" paragraph>
-//           Your courses are listed below:
-//         </Typography>
-
-//         <Button
-//           variant="contained"
-//           color="primary"
-//           onClick={() => handleNavigation('/calendar')}
-//           sx={{ width: '100%', textAlign: 'left', marginBottom: 2 }}
-//         >
-//           Calendar
-//         </Button>
-//         <Button
-//           variant="contained"
-//           color="primary"
-//           onClick={() => handleNavigation('/courses')}
-//           sx={{ width: '100%', textAlign: 'left', marginBottom: 2 }}
-//         >
-//           Courses
-//         </Button>
-//         <Button
-//           variant="contained"
-//           color="primary"
-//           onClick={() => handleNavigation('/grades')}
-//           sx={{ width: '100%', textAlign: 'left', marginBottom: 2 }}
-//         >
-//           Grades
-//         </Button>
-//         <Button
-//           variant="contained"
-//           color="primary"
-//           onClick={() => handleNavigation('/announcements')}
-//           sx={{ width: '100%', textAlign: 'left', marginBottom: 2 }}
-//         >
-//           Announcements
-//         </Button>
-        
-
-//         {/* Add cards for courses or additional content here */}
-//       </Box>
-//     </Box>
-//   );
-// };
-
-// export default Dashboard;
 
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { Box, Drawer, List, ListItem, ListItemText, Typography } from '@mui/material';
-import img7 from '../images/img7.jpg';
-
+import { Box, Drawer, List, ListItem, ListItemText, Typography, Container } from '@mui/material';
+ import { useEffect, useState } from 'react';
+import { Card, CardContent, Grid } from '@mui/material';
+ import axios from 'axios';
 const Dashboard = () => {
-  const navigate = useNavigate();
+  const [selectedTab, setSelectedTab] = useState(0);
   const user = useSelector((state) => state.auth.user);
+  const [ courses, setCourses] = useState([]);
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
 
-  const handleNavigation = (path) => {
-    navigate(path);
-  };
+  //Fetch all available courses
+  useEffect(() => {
+    // Fetch the courses API
+    axios.get('http://localhost:5000/api/courses') 
+      .then((response) => {
+        setCourses(response.data); // Set all courses
+      })
+      .catch((error) => {
+        console.error('Error fetching courses:', error);
+      });
+  }, [courses]);
+
+  // Fetch user enrolled courses
+  useEffect(() => {
+  // Ensure both user and courses are available
+  if (user?.courses?.length > 0 && courses.length > 0) {
+    // Normalize data for comparison and filter enrolled courses
+    const enrolledCoursesList = courses.filter(course => 
+      user.courses.some(enrolledCode => String(enrolledCode).toLowerCase() === String(course.courseCode).toLowerCase())
+    );
+
+    // Update the state with the filtered courses
+    setEnrolledCourses(enrolledCoursesList);
+  } else {
+    setEnrolledCourses([]); // Reset enrolled courses if data is incomplete
+  }
+}, [user, courses]);
+
+const renderCalendarContent = () => (
+  <Box>
+  <Grid container spacing={4}>
+    {enrolledCourses.map((job, index) => (
+      <Grid item xs={12} sm={6} md={4} key={index}>
+        <Card
+          elevation={3}
+          sx={{
+            backgroundColor: '#F7F7E8',
+            padding: 4,
+            margin: 'auto',
+            marginTop: 4,
+            maxWidth: 600,
+            borderRadius: 2,
+            boxShadow: 3,
+          }}
+        >
+          <CardContent>
+        <Typography variant="h6" component="div">
+          {courses.name}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {courses.courseCode}
+        </Typography>
+      
+          </CardContent>
+        </Card>
+      </Grid>
+    ))}
+  </Grid>
+</Box>
+);
+
+const renderCourseContent = () => (
+  <Box>
+    <Grid container spacing={4}>
+      {enrolledCourses.map((job, index) => (
+        <Grid item xs={12} sm={6} md={4} key={index}>
+          <Card
+            elevation={3}
+            sx={{
+              backgroundColor: '#F7F7E8',
+              padding: 4,
+              margin: 'auto',
+              marginTop: 4,
+              maxWidth: 600,
+              borderRadius: 2,
+              boxShadow: 3,
+            }}
+          >
+            <CardContent>
+          <Typography variant="h6" component="div">
+            {courses.name}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {courses.courseCode}
+          </Typography>
+        
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
+</Box>
+);
+
+const renderGradesContent = () => (
+  <Box>
+  <Grid container spacing={4}>
+    {enrolledCourses.map((job, index) => (
+      <Grid item xs={12} sm={6} md={4} key={index}>
+        <Card
+          elevation={3}
+          sx={{
+            backgroundColor: '#F7F7E8',
+            padding: 4,
+            margin: 'auto',
+            marginTop: 4,
+            maxWidth: 600,
+            borderRadius: 2,
+            boxShadow: 3,
+          }}
+        >
+          <CardContent>
+        <Typography variant="h6" component="div">
+          {courses.name}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {courses.courseCode}
+        </Typography>
+      
+          </CardContent>
+        </Card>
+      </Grid>
+    ))}
+  </Grid>
+</Box>
+);
+
+const renderAnnouncementsContent = () => (
+  <Box>
+  <Grid container spacing={4}>
+    {enrolledCourses.map((job, index) => (
+      <Grid item xs={12} sm={6} md={4} key={index}>
+        <Card
+          elevation={3}
+          sx={{
+            backgroundColor: '#F7F7E8',
+            padding: 4,
+            margin: 'auto',
+            marginTop: 4,
+            maxWidth: 600,
+            borderRadius: 2,
+            boxShadow: 3,
+          }}
+        >
+          <CardContent>
+        <Typography variant="h6" component="div">
+          {courses.name}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {courses.courseCode}
+        </Typography>
+      
+          </CardContent>
+        </Card>
+      </Grid>
+    ))}
+  </Grid>
+</Box>
+);
 
   return (
     <Box
       sx={{
         display: 'flex',
-        background: `url(${img7}) no-repeat center center`, // Add the image URL here
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         minHeight: '100vh',
@@ -141,67 +200,26 @@ const Dashboard = () => {
               {user?.name || 'Student'}
             </Typography>
           </ListItem>
-          {/* Sidebar items with hover effect */}
-          <ListItem
-            button
-            onClick={() => handleNavigation('/calendar')}
-            sx={{
-              '&:hover': {
-                backgroundColor: 'darkred', // Dark red on hover
-              },
-            }}
-          >
+          <ListItem button onClick={() => setSelectedTab(0)}>
             <ListItemText primary="Calendar" />
           </ListItem>
-          <ListItem
-            button
-            onClick={() => handleNavigation('/courses')}
-            sx={{
-              '&:hover': {
-                backgroundColor: 'darkred', // Dark red on hover
-              },
-            }}
-          >
+          <ListItem button onClick={ () => setSelectedTab(1)}>
             <ListItemText primary="Courses" />
           </ListItem>
-          <ListItem
-            button
-            onClick={() => handleNavigation('/grades')}
-            sx={{
-              '&:hover': {
-                backgroundColor: 'darkred', // Dark red on hover
-              },
-            }}
-          >
+          <ListItem button onClick={() => setSelectedTab(2)}>
             <ListItemText primary="Grades" />
           </ListItem>
-          <ListItem
-            button
-            onClick={() => handleNavigation('/announcements')}
-            sx={{
-              '&:hover': {
-                backgroundColor: 'darkred', // Dark red on hover
-              },
-            }}
-          >
+          <ListItem button onClick={() => setSelectedTab(3)}>
             <ListItemText primary="Announcements" />
           </ListItem>
         </List>
       </Drawer>
-
-      {/* Main Content */}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          padding: 3,
-          marginLeft: 240,
-          paddingTop: '64px', // Adjust padding to match the height of the navbar
-          minHeight: '100vh', // Ensure the background covers the full screen height
-        }}
-      >
-        {/* Add cards for courses or additional content here */}
-      </Box>
+      <Container sx={{ mt: 3 }}>
+          {selectedTab === 0 && renderCalendarContent()}
+          {selectedTab === 1 && renderCourseContent()}
+          {selectedTab === 2 && renderGradesContent()}
+          {selectedTab === 3 && renderAnnouncementsContent()}
+        </Container>
     </Box>
   );
 };
