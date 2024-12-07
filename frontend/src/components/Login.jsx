@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from 'react'; 
 import { useDispatch } from 'react-redux';
 import { loginUser } from '../redux/authSlice';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +10,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [error, setError] = useState('');
+  const [error, setError] = useState('');  // Error message for invalid login
   const [emailError, setEmailError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -22,7 +22,7 @@ const Login = () => {
 
   const handleHome = () => {
     navigate("/home");
-  }
+  };
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
@@ -64,16 +64,22 @@ const Login = () => {
         localStorage.setItem('courses', courses);
         localStorage.setItem('role', role);
 
-        console.log(localStorage);
-
         if (role === "teacher" || role === "ta") {
           navigate("/dashboard", { state: { email, id, courses } });
         } else if (role === "student") {
           navigate("/dashboard", { state: { email, id, courses } });
         }
       }
+      else{
+        setError('Invalid Credentials');
+      }
     } catch (error) {
       console.error('Login Error: ', error);
+      // Log the error to the console
+      console.log('Error response:', error.response); // Log the error response
+      console.log('Error message:', error.response?.data?.message); // Log the message if available
+
+      // Update the error state
       setError(
         error.response?.data?.message || 'An error occurred. Please try again later.'
       );
@@ -119,7 +125,7 @@ const Login = () => {
             
             <Button
               variant="contained"
-              onClick = {handleHome}
+              onClick={handleHome}
               sx={{
                 backgroundColor: '#d32f2f',
                 '&:hover': { backgroundColor: '#9a0007' },
@@ -169,7 +175,7 @@ const Login = () => {
               variant="outlined"
               fullWidth
               value={email}
-              onChange= {handleEmailChange}
+              onChange={handleEmailChange}
               error={!!emailError} // Error flag for email field
               helperText={emailError} // Show email error below field
               required
@@ -183,14 +189,6 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-            </Box>
             <Button
               type="submit"
               variant="contained"
