@@ -11,6 +11,7 @@ import PrivateRoute from './routes/PrivateRoute';
 import PublicRoute from './routes/PublicRoute';
 import AssignmentList from './components/AssignmentList';
 import AssignmentDetails from './components/AssignmentDetails';
+
 import TADashboard from './tacomponents/TADashboard';
 
 const App = () => {
@@ -25,7 +26,7 @@ const App = () => {
         <Route path="/schedule" element={<PrivateRoute><Schedule /></PrivateRoute>} />
         <Route path="/home" element={<PublicRoute><Home /></PublicRoute>} />
         <Route path="/assignments/:courseId" element={<PrivateRoute><AssignmentList /></PrivateRoute>} />
-        <Route path="/assignmentdetails/:title" element={<AssignmentDetails />} />
+        <Route path="/assignmentdetails/:title" element={<PrivateRoute><AssignmentDetails /></PrivateRoute>} />
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
         <Route path="/ta-dashboard" element={<TADashboard />} />
       </Routes>
