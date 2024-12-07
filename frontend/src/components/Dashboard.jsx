@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Box, Drawer, List, ListItem, ListItemText, Typography, Container } from '@mui/material';
+import { Box, Drawer, List, ListItem, ListItemText, Typography, Container,CardMedia } from '@mui/material';
  import { useEffect, useState } from 'react';
 import { Card, CardContent, Grid } from '@mui/material';
 import { logout } from '../redux/authSlice'; 
@@ -9,22 +9,14 @@ import { useDispatch } from 'react-redux';
 import { Button, Stack } from '@mui/material';
 import { CheckCircleOutline, MarkEmailUnread } from '@mui/icons-material';
 import apiService from '../redux/apiService';
-import {
-  startOfMonth,
-  endOfMonth,
-  startOfWeek,
-  endOfWeek,
-  addDays,
-  format,
-  isSameMonth,
-  isSameDay,
-} from "date-fns";
+import img7 from '../images/img7.jpg';
 
 const Dashboard = () => {
   const [selectedTab, setSelectedTab] = useState(0);
   const user = useSelector((state) => state.auth.user);
-  const [ courses] = useState([]);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [schedule, setSchedule] = useState([]); 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   // Fetch courses based on IDs stored in localStorage
@@ -154,173 +146,162 @@ const Dashboard = () => {
     });
   };
 
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [schedule, setSchedule] = useState([]);
+   // Fetch courses based on IDs stored in localStorage
+   useEffect(() => {
+    const storedCourseIds = localStorage.getItem('courses');
+    const courseIds = storedCourseIds ? storedCourseIds.split(',') : [];
+    if (courseIds.length > 0) {
+      const fetchCourses = async () => {
+        try {
+          const courseDataPromises = courseIds.map((id) => axios.get(`http://localhost:5000/api/courses/${id}`));
+          const courseResponses = await Promise.all(courseDataPromises);
+          const fetchedCourses = courseResponses.map((response) => response.data);
+          setCourses(fetchedCourses);
 
-  useEffect(() => {
-    apiService
-      .get("/schedule")
-      .then((response) => setSchedule(response.data))
-      .catch((error) => console.log(error));
+          // Fetch schedules for all courses
+          const fetchSchedules = async () => {
+            try {
+              const schedulePromises = courseIds.map((courseId) => 
+                axios.get(`http://localhost:5000/api/schedules?courseId=${courseId}`)
+              );
+              const scheduleResponses = await Promise.all(schedulePromises);
+              const fetchedSchedules = scheduleResponses.map((response) => response.data);
+              setSchedule(fetchedSchedules);
+            } catch (error) {
+              console.error('Error fetching schedules:', error);
+            }
+          };
+          fetchSchedules();
+        } catch (error) {
+          console.error('Error fetching enrolled courses:', error);
+        }
+      };
+      fetchCourses();
+    }
   }, []);
 
-  const startMonth = startOfMonth(currentDate);
-  const endMonth = endOfMonth(currentDate);
-  const startCalendar = startOfWeek(startMonth);
-  const endCalendar = endOfWeek(endMonth);
-
-  const days = [];
-  let day = startCalendar;
-
-  while (day <= endCalendar) {
-    days.push(day);
-    day = addDays(day, 1);
-  }
-
-  const renderDays = () => {
-    const headers = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-    return (
-      <Box display="flex" justifyContent="space-between">
-        {headers.map((header, index) => (
-          <Box flex={1} key={index} textAlign="center">
-            <Typography variant="h6">{header}</Typography>
-          </Box>
-        ))}
-      </Box>
-    );
-  };
-
-  const renderCells = () => {
-    return (
-      <Box display="flex" flexWrap="wrap">
-        {days.map((day, index) => (
-          <Box
-            key={index}
-            flex="1 0 14%"
-            height="100px"
-            border="1px solid #ddd"
-            backgroundColor={isSameMonth(day, startMonth) ? "#fff" : "#f5f5f5"}
-            textAlign="center"
-            position="relative"
-          >
-            <Typography
-              variant="body1"
-              sx={{
-                fontWeight: isSameDay(day, new Date()) ? "bold" : "normal",
-                color: isSameDay(day, new Date()) ? "#d32f2f" : "inherit",
-              }}
-            >
-              {format(day, "d")}
-            </Typography>
-
-            {schedule
-              .filter((event) => isSameDay(new Date(event.date), day))
-              .map((event, i) => (
-                <Box
-                  key={i}
-                  sx={{
-                    fontSize: "0.8rem",
-                    backgroundColor: "#d32f2f",
-                    color: "#fff",
-                    padding: "2px",
-                    borderRadius: "5px",
-                    marginTop: "5px",
-                    overflow: "hidden",
-                    whiteSpace: "nowrap",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {event.className}
+  const renderCourseContent = () => (
+      <Box sx={{ padding: 4 }}>
+        <Typography variant="h4" align="center" sx={{ 
+        textAlign: 'center',
+        fontWeight: 'bold',
+        marginBottom: 4,
+        color: '#d32f2f', // Red color for the heading
+      }}>
+          Enrolled Courses
+        </Typography>
+        <Grid container spacing={4}>
+          {enrolledCourses.map((course, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <Card
+                elevation={3}
+                sx={{
+                  backgroundColor: '#E8E8D8', // Fresh background color (light blue)
+                  padding: 3,
+                  margin: 'auto',
+                  marginTop: 2,
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  height: '100%',
+                }}
+              >
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', marginBottom: 2 }}>
+                    {course.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ marginBottom: 1 }}>
+                    <strong>Course Code:</strong> {course.courseCode}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ marginBottom: 1 }}>
+                    <strong>Description:</strong> {course.description}
+                  </Typography>
+                </CardContent>
+                {/* Button to view details */}
+                <Box sx={{ padding: 2, marginTop: 'auto', textAlign: 'center' }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    sx={{
+                      textTransform: 'none',
+                      backgroundColor: '#1976D2', // Blue background for the button
+                      '&:hover': { backgroundColor: '#1565C0' }, // Darker blue on hover
+                      
+                    }}
+                    onClick={() => alert(`Viewing details for ${course.name}`)} // Replace with actual navigation or action
+                  >
+                    View Assignments
+                  </Button>
                 </Box>
-              ))}
-          </Box>
-        ))}
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       </Box>
     );
-  };
   
-  const renderCalendarContent = () => (
-    <Box sx={{ p: 3 }}>
-    <Typography
-      variant="h4"
-      align="center"
-      gutterBottom
-      sx={{ color: "#d32f2f", fontWeight: "bold" }}
-    >
-      {format(currentDate, "MMMM yyyy")}
+
+const renderScheduleContent = () => (
+  <Box sx={{ margin: 3 }}>
+    <Typography variant="h4" align="center" sx={{
+        textAlign: 'center',
+        fontWeight: 'bold',
+        marginBottom: 4,
+        color: '#d32f2f', // Red color for the heading
+       }}>
+      Course Schedule
     </Typography>
-
-    <Box display="flex" justifyContent="space-between" sx={{ mb: 3 }}>
-      <Button
-        variant="contained"
-        sx={{
-          backgroundColor: "#d32f2f",
-          color: "#fff",
-          "&:hover": { backgroundColor: "#b71c1c" },
-        }}
-        onClick={() => setCurrentDate((prev) => addDays(prev, -30))}
-      >
-        Previous
-      </Button>
-      <Button
-        variant="contained"
-        sx={{
-          backgroundColor: "#d32f2f",
-          color: "#fff",
-          "&:hover": { backgroundColor: "#b71c1c" },
-        }}
-        onClick={() => setCurrentDate((prev) => addDays(prev, 30))}
-      >
-        Next
-      </Button>
-    </Box>
-
-    {renderDays()}
-    {renderCells()}
-  </Box>
-  );
-  
-
-const renderCourseContent = () => (
-  <Box>
-    <Grid container spacing={4}>
-      {enrolledCourses.map((course, index) => (
-        <Grid item xs={12} sm={6} md={4} key={index}>
-          <Card
-            elevation={3}
-            sx={{
-              backgroundColor: '#F7F7E8',
-              padding: 2,
-              margin: 'auto',
-              marginTop: 4,
-              maxWidth: 600,
-              borderRadius: 2,
-              boxShadow: 3,
-            }}
-          >
-            <CardContent>
-              <Typography variant="h6" component="div" gutterBottom>
-                {course.name}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {course.courseCode}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Semester: {course.semester}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      ))}
-    </Grid>
+    {schedule.length === 0 ? (
+      <Typography variant="body1" align="center">No schedule available</Typography>
+    ) : (
+      schedule.map((scheduleItems, index) => (
+        <Box key={index} sx={{ marginBottom: 4 }}>
+          {/* Grid Container */}
+          <Grid container spacing={3} justifyContent="center">
+            {scheduleItems.map((scheduleItem) => (
+              <Grid item key={scheduleItem._id} xs={12} sm={6} md={6}>
+                <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  {/* Image in the Card */}
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image={img7}  // Placeholder image
+                    alt="Course Image"
+                  />
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
+                      {`Days: ${scheduleItem.days.join(', ')}`}
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                      {`Time: ${scheduleItem.time}`}
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                      {`Location: ${scheduleItem.location}`}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {`Duration: ${new Date(scheduleItem.duration.startDate).toLocaleDateString()} - ${new Date(scheduleItem.duration.endDate).toLocaleDateString()}`}
+                    </Typography>
+                  </CardContent>
+                  {/* Course Name under the card */}
+                  <Box sx={{ padding: 2, backgroundColor: '#f5f5f5', textAlign: 'center' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                      {courses[index]?.name}
+                    </Typography>
+                  </Box>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      ))
+    )}
   </Box>
 );
 
-
 const renderGradesContent = () => (
   <Box>
-  <Grid container spacing={4}>
+  <Grid container spacing={2}>
     {enrolledCourses.map((job, index) => (
       <Grid item xs={12} sm={6} md={4} key={index}>
         <Card
@@ -328,7 +309,6 @@ const renderGradesContent = () => (
           sx={{
             backgroundColor: '#F7F7E8',
             padding: 4,
-            margin: 'auto',
             marginTop: 4,
             maxWidth: 600,
             borderRadius: 2,
@@ -444,6 +424,35 @@ const renderAnnouncementsContent = () => (
   </Box>
 );
 
+  // const renderScheduleContent = () => (
+  //   <Box>
+  //     <Typography variant="h4" align="center" sx={{ fontWeight: 'bold', marginBottom: 3 }}>
+  //       Course Schedule
+  //     </Typography>
+  //     {schedule.length === 0 ? (
+  //       <Typography variant="body1" align="center">No schedule available</Typography>
+  //     ) : (
+  //       schedule.map((scheduleItems, index) => (
+  //         <Box key={index}>
+  //           <Typography variant="h5" align="center" sx={{ fontWeight: 'bold', marginBottom: 2 }}>
+  //             {courses[index]?.name} Schedule
+  //           </Typography>
+  //           {scheduleItems.map((scheduleItem) => (
+  //             <Card key={scheduleItem._id} sx={{ marginBottom: 3, padding: 2 }}>
+  //               <CardContent>
+  //                 <Typography variant="h6" component="div">{`Days: ${scheduleItem.days.join(', ')}`}</Typography>
+  //                 <Typography variant="body1" color="text.secondary">{`Time: ${scheduleItem.time}`}</Typography>
+  //                 <Typography variant="body1" color="text.secondary">{`Location: ${scheduleItem.location}`}</Typography>
+  //                 <Typography variant="body2" color="text.secondary">{`Duration: ${new Date(scheduleItem.duration.startDate).toLocaleDateString()} - ${new Date(scheduleItem.duration.endDate).toLocaleDateString()}`}</Typography>
+  //               </CardContent>
+  //             </Card>
+  //           ))}
+  //         </Box>
+  //       ))
+  //     )}
+  //   </Box>
+  // );
+
   return (
     <Box
       sx={{
@@ -474,21 +483,25 @@ const renderAnnouncementsContent = () => (
               {user?.name || 'Student'}
             </Typography>
           </ListItem>
-          <ListItem button onClick={() => setSelectedTab(0)}>
-            <ListItemText primary="Calendar" />
-          </ListItem>
-          <ListItem button onClick={ () => setSelectedTab(1)}>
+          <ListItem button onClick={ () => setSelectedTab(0)}>
             <ListItemText primary="Courses" />
           </ListItem>
-          <ListItem button onClick={() => setSelectedTab(2)}>
+          <ListItem button onClick={() => setSelectedTab(1)}>
             <ListItemText primary="Grades" />
           </ListItem>
-          <ListItem button onClick={() => setSelectedTab(3)}>
+          <ListItem button onClick={() => setSelectedTab(2)}>
             <ListItemText primary="Announcements" />
           </ListItem>
-        <ListItem button onClick={handleLogout}
+          <ListItem button onClick={ () => setSelectedTab(3)}>
+            <ListItemText primary="Schedule" />
+          </ListItem>
+        {/* Position Logout button at bottom left */}
+        <ListItem
+          button
+          onClick={handleLogout}
           sx={{
-            borderRadius: 3,
+            
+            backgroundColor: 'black',
             paddingX: 3,
             paddingY: 1,
             boxShadow: 3,
@@ -499,84 +512,14 @@ const renderAnnouncementsContent = () => (
         </List>
       </Drawer>
       <Container sx={{ mt: 3 }}>
-          {selectedTab === 0 && renderCalendarContent()}
-          {selectedTab === 1 && renderCourseContent()}
-          {selectedTab === 2 && renderGradesContent()}
-          {selectedTab === 3 && renderAnnouncementsContent()}
+          
+          {selectedTab === 0 && renderCourseContent()}
+          {selectedTab === 1 && renderGradesContent()}
+          {selectedTab === 2 && renderAnnouncementsContent()}
+          {selectedTab === 3 && renderScheduleContent()}
         </Container>
     </Box>
   );
 };
 
 export default Dashboard;
-
-// import { Box, Grid, Card, CardContent, Typography, Container } from '@mui/material';
-// import { useState, useEffect } from 'react';
-// import axios from 'axios';
-
-// const Dashboard = () => {
-//   const [enrolledCourses, setEnrolledCourses] = useState([]);
-
-//   // Fetch courses based on IDs stored in localStorage
-//   useEffect(() => {
-//     const storedCourseIds = localStorage.getItem('courses'); // Fetch course IDs
-//     const courseIds = storedCourseIds ? storedCourseIds.split(',') : [];
-
-//     if (courseIds.length > 0) {
-//       // Fetch details for each course
-//       const fetchCourses = async () => {
-//         try {
-//           const courseDataPromises = courseIds.map((id) =>
-//             axios.get(`http://localhost:5000/api/courses/${id}`)
-//           );
-//           const courseResponses = await Promise.all(courseDataPromises);
-//           const fetchedCourses = courseResponses.map((response) => response.data);
-//           setEnrolledCourses(fetchedCourses);
-//         } catch (error) {
-//           console.error('Error fetching enrolled courses:', error);
-//         }
-//       };
-
-//       fetchCourses();
-//     }
-//   }, []);
-
-//   return (
-//     <Box sx={{ display: 'flex', backgroundColor: '#f9f9f9', minHeight: '100vh', padding: 3 }}>
-//       <Container>
-//         <Typography variant="h4" gutterBottom>
-//           Dashboard
-//         </Typography>
-//         <Grid container spacing={3}>
-//           {enrolledCourses.map((course) => (
-//             <Grid item xs={12} sm={6} md={4} key={course.id}>
-//               <Card
-//                 elevation={3}
-//                 sx={{
-//                   padding: 2,
-//                   backgroundColor: '#fff',
-//                   borderRadius: 2,
-//                   boxShadow: 3,
-//                 }}
-//               >
-//                 <CardContent>
-//                   <Typography variant="h6" component="div">
-//                     {course.name}
-//                   </Typography>
-//                   <Typography variant="body2" color="textSecondary">
-//                     {course.courseCode}
-//                   </Typography>
-//                   <Typography variant="body2" color="textSecondary">
-//                     Semester: {course.semester}
-//                   </Typography>
-//                 </CardContent>
-//               </Card>
-//             </Grid>
-//           ))}
-//         </Grid>
-//       </Container>
-//     </Box>
-//   );
-// };
-
-// export default Dashboard;
