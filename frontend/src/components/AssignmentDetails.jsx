@@ -1,5 +1,64 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+
+// import React, { useState, useEffect } from "react";
+// import { useParams } from "react-router-dom";
+// import axios from "axios";
+// import { CircularProgress, Typography, Container, Box } from "@mui/material";
+
+// const AssignmentDetails = () => {
+//   const { title } = useParams();  // Capture the assignment _id from the URL
+//   if (!title) {
+//     return <p>No title provided in the URL.</p>;
+//   }
+//   const [assignment, setAssignment] = useState(null); // To store the specific assignment
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     const fetchAssignmentDetails = async () => {
+//       try {
+//         // Make the backend call to get the specific assignment by ID
+//         const response = await axios.get(`http://localhost:5000/api/assignments/getAssignment/?title=${title}`);
+//         setAssignment(response.data.data);
+//       } catch (err) {
+//         setError("Unable to fetch assignment details.");
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchAssignmentDetails();
+//   }, [title]);  // The effect runs whenever the `id` changes
+
+//   if (loading) return <CircularProgress sx={{ margin: "auto", display: "block", marginTop: 4 }} />;
+//   if (error) return <Typography color="error" sx={{ textAlign: "center", marginTop: 4 }}>{error}</Typography>;
+
+//   return (
+//     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+//       {assignment ? (
+//         <Box>
+//           <Typography variant="h4" gutterBottom>{assignment.title}</Typography>
+//           <Typography variant="h6">Description: {assignment.description}</Typography>
+//           <Typography variant="body1">Due Date: {new Date(assignment.dueDate).toLocaleDateString()}</Typography>
+//           <Typography variant="body1">Points: {assignment.points}</Typography>
+//           <Typography variant="body1">Submission Type: {assignment.submissionType}</Typography>
+//           {/* Add more fields as necessary */}
+//         </Box>
+//       ) : (
+//         <Typography variant="h6" sx={{ textAlign: "center" }}>Assignment not found.</Typography>
+//       )}
+//     </Container>
+//   );
+// };
+
+// export default AssignmentDetails;
+
+
+
+
+
+
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import { CircularProgress, Typography, Container, Box, Drawer, List, ListItem, ListItemText, Button, TextField, Card } from "@mui/material";
 import { useDispatch } from "react-redux";
