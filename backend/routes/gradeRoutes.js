@@ -1,9 +1,10 @@
 const express = require("express");
-const { getGrades, addGrade } = require("../controllers/gradeController");
+const { getStudentGrades,addGrade } = require("../controllers/gradeController");
 const { protect } = require("../middleware/authMiddleware");
 const router = express.Router();
 
-router.get("/", protect, getGrades);
-router.post("/", protect, addGrade);
+router.get('/grades', getStudentGrades);
+router.post('/grades', addGrade);
+
 
 module.exports = router;

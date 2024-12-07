@@ -1,5 +1,6 @@
 const Assignment = require("../models/Assignment");
 const Course = require('../models/Course');
+const User = require('../models/User');
 
 exports.getAssignment = async (req, res) => {
     try {

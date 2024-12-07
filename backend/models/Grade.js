@@ -45,22 +45,20 @@ const grades = [
 ];
 
 // Grades Schema
-const gradeSchema = mongoose.Schema(
-  {
-    student: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    course: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: true },
-    assignmentGrades: [
-      {
-        assignment: { type: String, required: true }, // Assignment description
-        grade: { type: Number, required: true }, // Grade received
-      },
-    ],
-    finalGrade: { type: Number, default: null }, // Final grade for the course
-  },
-  { timestamps: true }
-);
 
-module.exports = {
-  Grade: mongoose.model("Grade", gradeSchema),
-  grades,
-};
+
+const gradeSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Changed from 'student' to 'userId'
+  course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+  assignmentGrades: [
+    {
+      assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment', required: true }, // Ensure 'assignment' is required
+      grade: { type: Number, required: true }, // Ensure 'grade' is required
+    },
+  ],
+  finalGrade: { type: Number }, // Optional
+}, { timestamps: true }); // Add timestamps for tracking creation and updates
+
+
+module.exports = mongoose.model('Grade', gradeSchema);
+

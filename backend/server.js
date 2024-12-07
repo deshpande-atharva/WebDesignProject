@@ -12,6 +12,10 @@ const fs = require('fs');
 const path = require('path');
 const courseRoutes = require("./routes/courseRoutes"); 
 const scheduleRoutes = require("./routes/scheduleRoutes");
+const session = require("express-session");
+const gradeRoutes = require('./routes/gradeRoutes');
+const Grade=require('./models/Grade')
+
 
 // Ensure uploads/submissions directory exists
 const submissionDir = path.join(__dirname, 'uploads/submissions');
@@ -65,6 +69,9 @@ app.use('/api/assignments', assignmentRoutes); // Register assignment routes
 app.use('/api/submissions', submissionRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use("/api", courseRoutes);
+app.use('/api', authRoutes);
+app.use(userRoutes);
+app.use('/api', gradeRoutes);
 
 // Static Data
 const users = [
@@ -181,6 +188,7 @@ const insertData = async () => {
     await Enrollment.deleteMany({});
 
     await Schedule.deleteMany({});
+    await Grade.deleteMany({});
 
     console.log("Existing data cleared!");
 
