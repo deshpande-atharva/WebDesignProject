@@ -37,7 +37,7 @@ const Dashboard = () => {
       const fetchCourses = async () => {
         try {
           const courseDataPromises = courseIds.map((id) =>
-            axios.get(`http://localhost:5000/api/courses/${id}`)
+            axios.get(`http://localhost:5002/api/courses/${id}`)
           );
           const courseResponses = await Promise.all(courseDataPromises);
           const fetchedCourses = courseResponses.map((response) => response.data);

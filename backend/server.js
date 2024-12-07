@@ -33,11 +33,11 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(cors({
-  origin: 'http://localhost:5173', // Allow only requests from the React frontend
-  methods: 'GET, POST, PUT, DELETE',
-  allowedHeaders: 'Content-Type, Authorization',
+  origin: 'http://localhost:5173', // Allow only your frontend origin
+  credentials: true, // Allow credentials (cookies, authorization headers, etc.)
 }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use('/uploads', express.static('uploads')); // Serve uploaded files
 
@@ -48,7 +48,7 @@ const startServer = async () => {
     console.log("Database connected successfully!");
     await insertData(); // Insert data every time
 
-    const PORT = process.env.PORT || 5001;
+    const PORT = process.env.PORT || 5002;
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
