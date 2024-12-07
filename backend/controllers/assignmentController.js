@@ -1,5 +1,21 @@
 const Assignment = require("../models/Assignment");
 const Course = require('../models/Course');
+const {ObjectId} = require('mongodb');
+
+
+// exports.getAssignments = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const assignment = await Assignment.findById(id);
+//     if (!assignment) {
+//       return res.status(404).json({ message: 'Assignment not found' });
+//     }
+//     res.status(200).json({ data: assignment });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: 'Error fetching assignment', error });
+//   }
+// };
 
 exports.getAssignment = async (req, res) => {
     try {
@@ -15,6 +31,22 @@ exports.getAssignment = async (req, res) => {
       }
 };
 
+exports.getAssignments= async(req,res)=>{
+  const { id } = req.params;
+  try {
+    const assignment = await Assignment.findById(new ObjectId(id)); 
+    if (!assignment) {
+      return res.status(404).json({ message: "Assignment not found" });
+    }
+    res.json({ success: true, data: assignment });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+
+
+
 
 exports.getCourseAssignment = async (req, res) => {
   try {
@@ -25,7 +57,6 @@ exports.getCourseAssignment = async (req, res) => {
     }
     res.status(200).json({ data: courseAssignments });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: 'Error fetching assignments', error });
   }
 };

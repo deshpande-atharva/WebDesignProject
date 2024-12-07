@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import {
   CircularProgress,
@@ -85,11 +85,11 @@ const AssignmentList = () => {
                 <CardActions>
                   <Button
                     component={Link}
-                    to={`/assignments/${assignment._id}`}
+                    to={`/assignmentdetails/${encodeURIComponent(assignment.title)}`}
                     variant="contained"
                     color="primary"
                     fullWidth
-                  >
+                  > 
                     View Details
                   </Button>
                 </CardActions>

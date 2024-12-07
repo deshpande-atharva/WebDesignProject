@@ -301,7 +301,6 @@ const insertData = async () => {
     }));
     await Schedule.insertMany(updatedSchedules);
     console.log("Schedules inserted!");
-
     for (const course of courseDocuments) {
       const courseAssignments = assignments.map(assignment => ({
         ...assignment,
@@ -311,7 +310,6 @@ const insertData = async () => {
       await Assignment.insertMany(courseAssignments);
       console.log(`Assignments created for course: ${course.name}`);
     }
-    console.log("All assignments have been seeded successfully.");
 
   } catch (err) {
     console.error("Error inserting data:", err);

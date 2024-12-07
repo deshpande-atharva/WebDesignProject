@@ -282,42 +282,42 @@ const Dashboard = () => {
   );
   
 
-const renderCourseContent = () => (
-  <Box>
-    <Grid container spacing={4}>
-      {enrolledCourses.map((course, index) => (
-        <Grid item xs={12} sm={6} md={4} key={index}>
-          <Card
-            elevation={3}
-            sx={{
-              backgroundColor: '#F7F7E8',
-              padding: 2,
-              margin: 'auto',
-              marginTop: 4,
-              maxWidth: 600,
-              borderRadius: 2,
-              boxShadow: 3,
-              cursor: 'pointer',
-            }}
-            onClick={() => navigate(`/assignments/${course._id}`)} // Add onClick handler
-          >
-            <CardContent>
-              <Typography variant="h6" component="div" gutterBottom>
-                {course.name}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {course.courseCode}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Semester: {course.semester}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      ))}
-    </Grid>
-  </Box>
-);
+  const renderCourseContent = () => (
+    <Box>
+      <Grid container spacing={4}>
+        {enrolledCourses.map((course, index) => (
+          <Grid item xs={12} sm={6} md={4} key={index}>
+            <Card
+              elevation={3}
+              sx={{
+                backgroundColor: '#F7F7E8',
+                padding: 2,
+                margin: 'auto',
+                marginTop: 4,
+                maxWidth: 600,
+                borderRadius: 2,
+                boxShadow: 3,
+                cursor: 'pointer',
+              }}
+              onClick={() => navigate(`/assignments/${course._id}`)}
+            >
+              <CardContent>
+                <Typography variant="h6" component="div" gutterBottom>
+                  {course.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {course.courseCode}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Semester: {course.semester}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
+  );
 
 
 const renderGradesContent = () => (
