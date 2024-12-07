@@ -229,7 +229,7 @@ const Dashboard = () => {
                       '&:hover': { backgroundColor: '#1565C0' }, // Darker blue on hover
                       
                     }}
-                    onClick={() => alert(`Viewing details for ${course.name}`)} // Replace with actual navigation or action
+                    onClick={() => navigate(`/assignments/${course._id}`)} // Replace with actual navigation or action
                   >
                     View Assignments
                   </Button>
