@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCourses } from '../redux/courseSlice';
+import { useEffect, useState } from 'react';
 
-const Courses = () => {
+const Dashboard = () => {
   const dispatch = useDispatch();
-
-  const user = useSelector((state) => state.auth?.user); // Safely access user
-  const { courses = [], loading, error } = useSelector((state) => state.courses || {}); // Provide default values
+  const user = useSelector((state) => state.auth.user);
+  const { courses = [], loading } = useSelector((state) => state.courses || {});
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
 
   useEffect(() => {
     if (user) {
@@ -14,34 +14,15 @@ const Courses = () => {
     }
   }, [dispatch, user]);
 
-  if (!user && loading) {
-    return <p>Loading user...</p>; // Show a loading message while user info is being fetched
-  }
+  useEffect(() => {
+    if (user?.courses?.length && courses.length) {
+      const enrolledCoursesList = courses.filter(course =>
+        user.courses.includes(course.courseCode)
+      );
+      setEnrolledCourses(enrolledCoursesList);
+    }
+  }, [user, courses]);
 
-  if (!user) {
-    return <p>No user logged in</p>;
-  }
-
-  return (
-    <div className="courses">
-      <h1>{user.name} Enrolled Courses</h1>
-      {loading && <p>Loading courses...</p>}
-      {error && <p>Error: {error.message || "Something went wrong"}</p>}
-      <ul>
-        {courses.length > 0 ? (
-          courses.map((course) => (
-            <li key={course._id}>
-              <h3>{course.name}</h3>
-              <p>{course.description}</p>
-              <p>Teacher: {course.teacher?.name || "Unknown"}</p> {/* Render teacher name */}
-            </li>
-          ))
-        ) : (
-          <p>No courses available</p>
-        )}
-      </ul>
-    </div>
-  );
+  // Render logic here
 };
-
-export default Courses;
+export default Dashboard;

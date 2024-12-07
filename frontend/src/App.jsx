@@ -10,6 +10,8 @@ import Courses from './pages/Courses';
 import Schedule from './pages/Schedule';
 import PrivateRoute from './routes/PrivateRoute';
 import PublicRoute from './routes/PublicRoute';
+import AssignmentList from './components/AssignmentList';
+import AssignmentDetails from './components/AssignmentDetails';
 
 const App = () => {
   return (
@@ -23,6 +25,8 @@ const App = () => {
         <Route path="/courses" element={<PrivateRoute><Courses /></PrivateRoute>} />
         <Route path="/schedule" element={<PrivateRoute><Schedule /></PrivateRoute>} />
         <Route path="/home" element={<PublicRoute><Home /></PublicRoute>} />
+        <Route path="/assignments/:courseId" element={<PrivateRoute><AssignmentList /></PrivateRoute>} />
+        <Route path="/assignmentdetails/:title" element={<AssignmentDetails />} />
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
       </Routes>
     </div>

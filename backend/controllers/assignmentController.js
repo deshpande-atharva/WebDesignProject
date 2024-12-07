@@ -1,5 +1,21 @@
 const Assignment = require("../models/Assignment");
 const Course = require('../models/Course');
+const {ObjectId} = require('mongodb');
+
+
+// exports.getAssignments = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const assignment = await Assignment.findById(id);
+//     if (!assignment) {
+//       return res.status(404).json({ message: 'Assignment not found' });
+//     }
+//     res.status(200).json({ data: assignment });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: 'Error fetching assignment', error });
+//   }
+// };
 
 exports.getAssignment = async (req, res) => {
     try {
@@ -15,19 +31,34 @@ exports.getAssignment = async (req, res) => {
       }
 };
 
+exports.getAssignments= async(req,res)=>{
+  const { id } = req.params;
+  try {
+    const assignment = await Assignment.findById(new ObjectId(id)); 
+    if (!assignment) {
+      return res.status(404).json({ message: "Assignment not found" });
+    }
+    res.json({ success: true, data: assignment });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+}
 
-exports.getCourseAssignment = async(req, res) => {
-    try {
-        const { courseId } = req.query;
-        const courseAssignment = await Assignment.find({ courseId }); // Populate foreign keys
-        if (!courseAssignment) {
-          return res.status(404).json({ message: 'Assignment not found for specific course' });
-        }
-        res.status(200).json({ data: courseAssignment });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error fetching assignment', error });
-      }
+
+
+
+
+exports.getCourseAssignment = async (req, res) => {
+  try {
+    const { courseId } = req.query;
+    const courseAssignments = await Assignment.find({ courseId });
+    if (courseAssignments.length === 0) {
+      return res.status(404).json({ message: 'No assignments found for this course' });
+    }
+    res.status(200).json({ data: courseAssignments });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching assignments', error });
+  }
 };
 
 exports.addAssignment = async (req, res) => {
