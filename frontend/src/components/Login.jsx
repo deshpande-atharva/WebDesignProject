@@ -56,16 +56,17 @@ const Login = () => {
     try {
       const result = await dispatch(loginUser({ email, password }));
       if (result.payload) {
-        const { email, id, courses, role } = result.payload;
+        const { email, id, courses, role, assigned_courses } = result.payload;
 
         // Save session data in localStorage
         localStorage.setItem('email', email);
         localStorage.setItem('userId', id);
         localStorage.setItem('courses', courses);
+        localStorage.setItem('assignedcourses', assigned_courses);
         localStorage.setItem('role', role);
 
         if (role === "teacher" || role === "ta") {
-          navigate("/dashboard", { state: { email, id, courses } });
+          navigate("/ta-dashboard", { state: { email, id, assigned_courses, role} });
         } else if (role === "student") {
           navigate("/dashboard", { state: { email, id, courses } });
         }
