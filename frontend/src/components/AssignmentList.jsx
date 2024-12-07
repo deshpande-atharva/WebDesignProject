@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import  { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { useSelector } from 'react-redux';
 import axios from "axios";
 import {
   CircularProgress,
@@ -12,22 +13,31 @@ import {
   Button,
   Chip,
   Box,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText
 } from "@mui/material";
 import { Assignment, CalendarToday } from "@mui/icons-material";
+import { useDispatch } from 'react-redux';
+import { logout } from "../redux/authSlice";
 
 const AssignmentList = () => {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const user = useSelector((state) => state.auth.user);
+  const navigate = useNavigate();
   const { courseId } = useParams();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchAssignments = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/assignments/getAll?courseId=${courseId}`);
         setAssignments(response.data.data);
-      } catch (err) {
-        setError("Unable to fetch assignments for this course.");
+      } catch (error) {
+        setError(error.message || "Unable to fetch assignments for this course.");
       } finally {
         setLoading(false);
       }
@@ -39,8 +49,68 @@ const AssignmentList = () => {
   if (loading) return <CircularProgress sx={{ margin: "auto", display: "block", marginTop: 4 }} />;
   if (error) return <Typography color="error" sx={{ textAlign: "center", marginTop: 4 }}>{error}</Typography>;
 
+  // Logout Function using Redux
+  const handleLogout = () => {
+    // Dispatch logout action and clear localStorage
+    dispatch(logout);
+    
+    localStorage.clear();
+    navigate('/');
+  };
+
   return (
+
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      {/* Left Sidebar (Drawer) */}
+      <Drawer
+        sx={{
+          width: 240,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: 240,
+            boxSizing: 'border-box',
+            backgroundColor: 'rgba(139, 0, 0, 0.8)', // Semi-transparent dark red
+            color: 'white', // Set text color to white
+            position:'fixed'
+          },
+        }}
+        variant="permanent"
+        anchor="left"
+      >
+        <List>
+          <ListItem>
+            <Typography variant="h5" align="center">
+              {user?.name || 'Student'}
+            </Typography>
+          </ListItem>
+          <ListItem button onClick={ () => navigate('/dashboard')}>
+            <ListItemText primary="Courses" />
+          </ListItem>
+          <ListItem button onClick={() => navigate('/dashboard')}>
+            <ListItemText primary="Grades" />
+          </ListItem>
+          <ListItem button onClick={() => navigate('/dashboard')}>
+            <ListItemText primary="Announcements" />
+          </ListItem>
+          <ListItem button onClick={ () => navigate('/dashboard')}>
+            <ListItemText primary="Schedule" />
+          </ListItem>
+        {/* Position Logout button at bottom left */}
+        <ListItem
+          button
+          onClick={handleLogout}
+          sx={{
+            
+            backgroundColor: 'black',
+            paddingX: 3,
+            paddingY: 1,
+            boxShadow: 3,
+          }}
+        >
+          <ListItemText primary="Logout" />
+        </ListItem>
+        </List>
+      </Drawer>
       <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold", color: "#d32f2f", textAlign: "center", mb: 4 }}>
         Course Assignments
       </Typography>
@@ -58,6 +128,7 @@ const AssignmentList = () => {
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
+                  marginLeft:10,
                   transition: '0.3s',
                   '&:hover': {
                     transform: 'translateY(-5px)',
