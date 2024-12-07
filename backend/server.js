@@ -2,19 +2,20 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const bcrypt = require('bcrypt');
 const connectDB = require("./config/db");
 const courseRoutes = require('./routes/courseRoutes');
 const userRoutes = require('./routes/userRoutes');
-
+const authRoutes = require('./routes/authRoutes');
+const Assignment= require('./models/Assignment');
 const assignmentRoutes = require("./routes/assignmentRoutes");
 const submissionRoutes = require('./routes/submissionRoutes');
 const fs = require('fs');
 const path = require('path');
-const courseRoutes = require("./routes/courseRoutes"); 
 const scheduleRoutes = require("./routes/scheduleRoutes");
-const session = require("express-session");
 const gradeRoutes = require('./routes/gradeRoutes');
-const Grade=require('./models/Grade')
+const Grade=require('./models/Grade');
+const Schedule = require("./models/Schedule");
 
 
 // Ensure uploads/submissions directory exists
@@ -27,7 +28,6 @@ if (!fs.existsSync(submissionDir)) {
 const User = require("./models/User");
 const Course = require("./models/Course");
 const Enrollment = require("./models/Enrollment");
-const Schedule = require("./models/Schedule");
 
 
 // Initialize dotenv for environment variables
@@ -42,8 +42,7 @@ app.use(cors({
   allowedHeaders: 'Content-Type, Authorization',
 }));
 app.use(express.json());
-app.use('/api', courseRoutes);
-app.use(userRoutes);
+
 app.use('/uploads', express.static('uploads')); // Serve uploaded files
 
 // Connect to the database and start the server
@@ -74,6 +73,36 @@ app.use(userRoutes);
 app.use('/api', gradeRoutes);
 
 // Static Data
+const assignments = [
+  {
+    title: "Midterm Project",
+    description: "Complete a project demonstrating your understanding of course concepts.",
+    points: 100,
+    dueDate: new Date("2024-12-15"),
+    allowedAttempts: 1,
+    submissionType: "file",
+    submissionDetails: "Submit a PDF report and source code.",
+  },
+  {
+    title: "Final Exam",
+    description: "Comprehensive exam covering all course material.",
+    points: 150,
+    dueDate: new Date("2024-12-20"),
+    allowedAttempts: 1,
+    submissionType: "text",
+    submissionDetails: "Complete the online exam within the allocated time.",
+  },
+  {
+    title: "Weekly Quiz",
+    description: "Short quiz on this week's topics.",
+    points: 20,
+    dueDate: new Date("2024-12-10"),
+    allowedAttempts: 2,
+    submissionType: "link",
+    submissionDetails: "Access the quiz through the provided link.",
+  },
+];
+
 const users = [
   {
     name: "John Doe",
@@ -180,27 +209,35 @@ const schedules = [
   },
 ];
 
+
+
 const insertData = async () => {
   try {
     // Clear existing collections
     await User.deleteMany({});
     await Course.deleteMany({});
     await Enrollment.deleteMany({});
-
-    await Schedule.deleteMany({});
+    //await Schedule.deleteMany({});
     await Grade.deleteMany({});
+
+    await Assignment.deleteMany({});
 
     console.log("Existing data cleared!");
 
+    // Hash passwords for users
+    const updatedUsers = await Promise.all(
+      users.map(async (user) => ({
+        ...user,
+        password: await bcrypt.hash(user.password, 10), // Hash password with salt rounds
+        courses: [], // Placeholder for student courses
+        teaching_courses: [], // Placeholder for teacher courses
+        assigned_courses: [], // Placeholder for TA courses
+      }))
+    );
+
     // Insert Users
-    const updatedUsers = users.map(user => ({
-      ...user,
-      courses: [], // Placeholder for student courses
-      teaching_courses: [], // Placeholder for teacher courses
-      assigned_courses: [], // Placeholder for TA courses
-    }));
     const userDocuments = await User.insertMany(updatedUsers);
-    console.log("Users inserted!");
+    console.log("Users with hashed passwords inserted!");
 
     // Map user emails to ObjectId
     const userMap = userDocuments.reduce((map, user) => {
@@ -214,9 +251,7 @@ const insertData = async () => {
       teacher: userMap[course.teacher], // Replace teacher email with ObjectId
       ta: course.ta.map(email => userMap[email]), // Replace TA emails with ObjectIds
     }));
-
-    const courseDocuments = await Course.insertMany(updatedCourses); // Ensure this is defined
-
+    const courseDocuments = await Course.insertMany(updatedCourses);
     console.log("Courses inserted!");
 
     // Map course codes to ObjectId
@@ -244,11 +279,8 @@ const insertData = async () => {
       return updatedUser;
     });
 
-
     // Replace Users with updated references
-    await User.deleteMany({});
-    await User.insertMany(updatedUserDocuments);
-    console.log("Updated Users inserted!");
+    
 
     // Create Enrollments for students
     const enrollments = updatedUserDocuments
@@ -268,14 +300,24 @@ const insertData = async () => {
     // Insert Schedules
     const updatedSchedules = schedules.map(schedule => ({
       ...schedule,
-      course: courseDocuments.find(course => course.courseCode === schedule.course)._id, 
+      course: courseDocuments.find(course => course.courseCode === schedule.course)._id,
     }));
     await Schedule.insertMany(updatedSchedules);
     console.log("Schedules inserted!");
+    for (const course of courseDocuments) {
+      const courseAssignments = assignments.map(assignment => ({
+        ...assignment,
+        courseId: course._id,
+        userId: course.teacher,
+      }));
+      await Assignment.insertMany(courseAssignments);
+      console.log(`Assignments created for course: ${course.name}`);
+    }
 
   } catch (err) {
     console.error("Error inserting data:", err);
   }
 };
+
 
 startServer();
